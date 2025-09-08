@@ -1,1 +1,1 @@
-# Proj.Lab.Edienkarte
+# 🥗 Sabalansētas ēdienkartes plānotājs
