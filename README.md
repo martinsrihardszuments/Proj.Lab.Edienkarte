@@ -5,7 +5,7 @@
 ## Jānis
 ## Eduards
 ## 🔍 Līdzīgo risinājumu pārskats
-| Līdzīgie risinājumi | Apraksta | Novērojumi |
+| Līdzīgie risinājumi | Apraksts | Novērojumi |
 |:--------|:-------:|-------:|
 | teksts  | teksts  | teksts |
 | teksts  | teksts  | teksts |
