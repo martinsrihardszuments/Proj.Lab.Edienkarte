@@ -5,10 +5,11 @@
 ## Jānis
 ## Eduards
 ## 🔍 Līdzīgo risinājumu pārskats
--
--
--
--
+| Kreisā | Centrā | Labā |
+|:--------|:-------:|-------:|
+| teksts  | teksts  | teksts |
+| teksts  | teksts  | teksts |
+
 ## 🧩 Tehnoloģijas Steks
 OS: Ubuntu  
 Valoda: Python  
