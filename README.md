@@ -9,6 +9,8 @@
 |:--------|:-------:|-------:|
 | teksts  | teksts  | teksts |
 | teksts  | teksts  | teksts |
+| teksts  | teksts  | teksts |
+| teksts  | teksts  | teksts |
 
 ## 🧩 Tehnoloģijas Steks
 OS: Ubuntu  
