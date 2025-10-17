@@ -18,6 +18,7 @@
 | Dienas/Nedēļas/Mēneša Ēdienu plāns | ✅ | ❌ | ✅ | ✅ |
 | Vēlamā diēta | ❌ | ✅ | ❌ | ✅ |
 | Lētākas opcijas | ✅ | ❌ | ✅ | ✅ |
+| Var atjaunot ēdienkarti | ✅ | ❌ | ✅ | ✅ |
 
 ## 🧩 Tehnoloģijas Steks
 OS: Ubuntu  
