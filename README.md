@@ -10,11 +10,11 @@
 
 ## 📊 Funkcionalitāšu salīdzinājums
 
-| Lietotne | Kaloriju aprēķins |  Makro | Uztura mērķi | Automātiski Ēdienreižu plāni | Gaume / Alerģijas | Iepirkumu saraksts | Cena/budžets | Receptes datubāze | Platformas | Piezīmes |
+| Lietotne | Kaloriju aprēķins | Makro | Uztura mērķi | Automātiski Ēdienreižu plāni | Gaume / Alerģijas | Iepirkumu saraksts | Cena/budžets | Receptes datubāze | Platformas | Piezīmes |
 |-----------|-------------------|--------------|------------|-----------|-----------------------------|--------------------|---------------|------------------|-------------|-----------|
 | **Eat This Much** | ✅ | 🟠 tikai kalorijas | ✅ | ✅ | 🟠 tikai dieta | 🟠 maksas versijā | 🟠 maksas versijā | ✅ | iOS / Android / Web | Spēcīga automatizācija, budžeta ievade |
-| **MyFitnessPal** | ✅ |  🟠 maksas versija | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | iOS / Android / Web | Milzīga datubāze, personalizācija aug Premium līmenī |
-| **Cronometer** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ (mikroelementi) | iOS / Android / Web | Precīza mikroelementu uzskaite |
+| **MyFitnessPal** | ✅ | 🟠 maksas versija | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | iOS / Android / Web | Milzīga datubāze, personalizācija aug Premium līmenī |
+| **Cronometer** | ✅ | ✅ | ✅ | 🟠 maksas versijā | ❌ | ✅ | ❌ | ❌ | iOS / Android / Web | Precīza mikroelementu uzskaite |
 | **Lifesum** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | iOS / Android | Daudz diētu un recepšu |
 | **YAZIO** | ✅ | ✅ | 🟠 Daži plāni | 🟠 Ierobežota | 🟠 Ierobežota | ❌ | ✅ | iOS / Android | Koncentrējas uz badošanos |
 | **Carb Manager** | ✅ | ✅ (zema ogļh.) | ✅ | ✅ | ✅ | ❌ | ✅ | iOS / Android / Web | Keto fokuss, pilni ēdienreižu plāni |
