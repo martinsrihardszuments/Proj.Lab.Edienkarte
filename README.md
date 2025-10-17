@@ -5,7 +5,7 @@
 ## Jānis
 ## Eduards
 ## 🔍 Līdzīgo risinājumu pārskats
-### 🧩 Tehnoloģijas Steks
+## 🧩 Tehnoloģijas Steks
 OS: Ubuntu  
 Valoda: Python  
 Web serveris: Django  
