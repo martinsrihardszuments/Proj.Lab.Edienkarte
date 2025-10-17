@@ -5,7 +5,7 @@
 ## Jānis
 ## Eduards
 ## 🔍 Līdzīgo risinājumu pārskats
-| Kreisā | Centrā | Labā |
+| Līdzīgie risinājumi | Apraksta | Novērojumi |
 |:--------|:-------:|-------:|
 | teksts  | teksts  | teksts |
 | teksts  | teksts  | teksts |
