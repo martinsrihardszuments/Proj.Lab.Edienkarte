@@ -12,6 +12,12 @@
 | Apkopo kalorijas | ✅ | ✅ | ✅ | ✅ |
 | Pielīdzina kalorijas lietotājam | ❌ | ✅ | ❌ | ✅ |
 | Rāda Receptes sastāvdaļas | ✅ | ❌ | ✅ | ✅ |
+| Ēdienreizes cena | ✅ | ❌ | ✅ | ✅ |
+| Uzturvielas uzskaite | ✅ | ✅ | ✅ | ✅ |
+| Alerģijas | ❌ | ✅ | ❌ | ✅ |
+| Dienas/Nedēļas/Mēneša Ēdienu plāns | ✅ | ❌ | ✅ | ✅ |
+| Vēlamā diēta | ❌ | ✅ | ❌ | ✅ |
+| Lētākas opcijas | ✅ | ❌ | ✅ | ✅ |
 
 ## 🧩 Tehnoloģijas Steks
 OS: Ubuntu  
