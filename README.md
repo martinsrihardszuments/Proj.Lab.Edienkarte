@@ -4,6 +4,7 @@
 ## Kristers
 ## Jānis
 ## Eduards
+## 🔍 Līdzīgo risinājumu pārskats
 ### 🧩 Tehnoloģijas Steks
 OS: Ubuntu  
 Valoda: Python  
