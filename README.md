@@ -12,7 +12,7 @@
 
 | Lietotne | Kaloriju aprēķins |  Makro/Uztura mērķi | Automātiski Ēdienreižu plāni | Gaume / Alerģijas | Iepirkumu saraksts | Cena/budžets | Receptes datubāze | Platformas | Piezīmes |
 |-----------|-------------------|--------------|--------------------|-----------------------------|--------------------|---------------|------------------|-------------|-----------|
-| **Eat This Much** | ✅ | ✅ | ✅ | ✅ | ✅ | 🟠 Budžeta ievade, daļēji cenu aprēķini | ✅ | iOS / Android / Web | Spēcīga automatizācija, budžeta ievade |
+| **Eat This Much** | ✅ | 🟠 tikai kalorijas | ✅ | 🟠 tikai dieta | 🟠 maksas versijā | 🟠 maksas versijā | ✅ | iOS / Android / Web | Spēcīga automatizācija, budžeta ievade |
 | **MyFitnessPal** | ✅ | ✅ *(Premium)* | 🟠 Ierobežoti (Premium+) | 🟠 Filtri pēc gaumes | ❌ | 🟠 “Budžetam draudzīgi” ieteikumi | ✅ (kopiena) | iOS / Android / Web | Milzīga datubāze, personalizācija aug Premium līmenī |
 | **Cronometer** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ (mikroelementi) | iOS / Android / Web | Precīza mikroelementu uzskaite |
 | **Lifesum** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | iOS / Android | Daudz diētu un recepšu |
