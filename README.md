@@ -27,23 +27,22 @@ This research compares leading calorie tracking and meal-planning apps to help i
 
 ---
 
-## 📊 Feature Comparison
+## 📊 Funkcionalitāšu salīdzinājums
 
-| App | Calorie Needs Calc | Macro Targets | Auto Meal Plans | Personalized by Preferences | Grocery List | Price/Budget Tools | Barcode Scanner | AI Photo / Voice Logging | Recipe Database | Wearable Integration | Platforms | Notes |
-|------|--------------------|----------------|------------------|------------------------------|---------------|--------------------|------------------|---------------------------|------------------|----------------------|------------|--------|
-| **Eat This Much** | ✅ | ✅ | ✅ | ✅ | ✅ | 🟠 Budget input; some cost estimates | ❌ | ❌ | ✅ | ❌ | iOS / Android / Web | Strong on automation and budget input |
-| **MyFitnessPal** | ✅ | ✅ *(Premium)* | 🟠 Limited (Premium+) | 🟠 Basic filters | ❌ | 🟠 Budget-friendly filters | ✅ *(Premium)* | ✅ *(Meal Scan, voice)* | ✅ (community) | ✅ | iOS / Android / Web | Massive DB; new personalization tools |
-| **Cronometer** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ (detailed nutrients) | ✅ | iOS / Android / Web | Best for micronutrient depth |
-| **Lifesum** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ *(photo/voice)* | ✅ | ✅ | iOS / Android | Recipe-rich diet plans |
-| **YAZIO** | ✅ | ✅ | 🟠 Some (diet plans) | 🟠 Limited | 🟠 Limited | ❌ | ✅ | ✅ *(photo)* | ✅ | ✅ | iOS / Android | Focus on fasting & photo AI |
-| **Carb Manager** | ✅ | ✅ (low-carb) | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ *(Premium)* | ✅ | ✅ | iOS / Android / Web | Strong keto focus; full planning |
-| **MacroFactor** | ✅ *(adaptive)* | ✅ *(auto adjust)* | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | iOS / Android | Adaptive calorie/macro system |
-| **Samsung Food (Whisk)** | ✅ *(basic)* | 🟠 Limited | ✅ *(AI 7-day)* | ✅ | ✅ | 🟠 No explicit price; shopping links | ❌ | 🟠 Ingredient recognition | ✅ | ❌ | iOS / Android / Web | Pantry + grocery integration |
-| **Lose It!** | ✅ | ✅ | 🟠 Suggested (Premium) | 🟠 Limited | ❌ | ❌ | ✅ *(Premium)* | ✅ *(AI photo/voice)* | ✅ | ✅ | iOS / Android / Web | AI logging + large DB |
-| **Fooducate** | ✅ | ✅ *(basic)* | ❌ | 🟠 Diet filters | ❌ | ❌ | ✅ | ❌ | 🟠 Community | 🟠 Some | iOS / Android / Web | Food quality scoring app |
+| Lietotne | Kaloriju aprēķins | Makro mērķi | Automātiski plāni | Personalizācija pēc gaumes | Iepirkumu saraksts | Cena/budžets | Svītrkoda skeneris | AI foto / balss ievade | Receptes datubāze | Integrācija ar ierīcēm | Platformas | Piezīmes |
+|-----------|-------------------|--------------|--------------------|-----------------------------|--------------------|---------------|--------------------|--------------------------|--------------------|--------------------------|-------------|-----------|
+| **Eat This Much** | ✅ | ✅ | ✅ | ✅ | ✅ | 🟠 Budžeta ievade, daļēji cenu aprēķini | ❌ | ❌ | ✅ | ❌ | iOS / Android / Web | Spēcīga automatizācija, budžeta ievade |
+| **MyFitnessPal** | ✅ | ✅ *(Premium)* | 🟠 Ierobežoti (Premium+) | 🟠 Filtri pēc gaumes | ❌ | 🟠 “Budžetam draudzīgi” ieteikumi | ✅ *(Premium)* | ✅ *(Foto, balss)* | ✅ (kopiena) | ✅ | iOS / Android / Web | Milzīga datubāze, personalizācija aug Premium līmenī |
+| **Cronometer** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ (mikroelementi) | ✅ | iOS / Android / Web | Precīza mikroelementu uzskaite |
+| **Lifesum** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ *(foto/balss)* | ✅ | ✅ | iOS / Android | Daudz diētu un recepšu |
+| **YAZIO** | ✅ | ✅ | 🟠 Daži plāni | 🟠 Ierobežota | 🟠 Ierobežota | ❌ | ✅ | ✅ *(foto)* | ✅ | ✅ | iOS / Android | Koncentrējas uz badošanos un AI ievadi |
+| **Carb Manager** | ✅ | ✅ (zema ogļh.) | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ *(Premium)* | ✅ | ✅ | iOS / Android / Web | Keto fokuss, pilni ēdienreižu plāni |
+| **MacroFactor** | ✅ *(adaptīvs)* | ✅ *(automātiski pielāgojas)* | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | iOS / Android | Automātiski pielāgo kaloriju un makro mērķus |
+| **Samsung Food (Whisk)** | ✅ *(pamata)* | 🟠 Ierobežoti | ✅ *(AI plāni)* | ✅ | ✅ | 🟠 Nav precīzu cenu, tikai veikalu saites | ❌ | 🟠 Sastāvdaņu atpazīšana | ✅ | ❌ | iOS / Android / Web | AI plānošana un virtuves pārvaldība |
+| **Lose It!** | ✅ | ✅ | 🟠 Ieteiktie plāni (Premium) | 🟠 Ierobežoti | ❌ | ❌ | ✅ *(Premium)* | ✅ *(AI foto/balss)* | ✅ | ✅ | iOS / Android / Web | AI ievade + liela datubāze |
+| **Fooducate** | ✅ | ✅ *(pamata)* | ❌ | 🟠 Diētu filtri | ❌ | ❌ | ✅ | ❌ | 🟠 Kopienas receptes | 🟠 Daļēja | iOS / Android / Web | Uzsvars uz produktu kvalitāti |
 
 ---
-
 
 
 ## 🧩 Tehnoloģijas Steks
