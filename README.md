@@ -4,7 +4,7 @@
 ## Kristers
 ## Jānis
 ## Eduards
-### 🧩 Projekta tehnoloģijas
+### 🧩 Tehnoloģijas Steks
 OS: Ubuntu  
 Valoda: Python  
 Web serveris: Django  
