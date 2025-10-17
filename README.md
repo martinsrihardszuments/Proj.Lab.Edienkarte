@@ -15,7 +15,7 @@
 | **Eat This Much** | ✅ | 🟠 tikai kalorijas | ✅ | ✅ | 🟠 tikai dieta | 🟠 maksas versijā | 🟠 maksas versijā | ✅ | iOS / Android / Web | Spēcīga automatizācija, budžeta ievade |
 | **MyFitnessPal** | ✅ | 🟠 maksas versija | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | iOS / Android / Web | Milzīga datubāze, personalizācija aug Premium līmenī |
 | **Cronometer** | ✅ | ✅ | ✅ | 🟠 maksas versijā | ❌ | ✅ | ❌ | ❌ | iOS / Android / Web | Precīza mikroelementu uzskaite |
-| **Lifesum** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | iOS / Android | Daudz diētu un recepšu |
+| **Lifesum** | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | iOS / Android | Daudz diētu un recepšu |
 | **YAZIO** | ✅ | ✅ | 🟠 Daži plāni | 🟠 Ierobežota | 🟠 Ierobežota | ❌ | ✅ | iOS / Android | Koncentrējas uz badošanos |
 | **Carb Manager** | ✅ | ✅ (zema ogļh.) | ✅ | ✅ | ✅ | ❌ | ✅ | iOS / Android / Web | Keto fokuss, pilni ēdienreižu plāni |
 | **MacroFactor** | ✅ *(adaptīvs)* | ✅ *(automātiski pielāgojas)* | ❌ | ❌ | ❌ | ❌ | ✅ | iOS / Android | Automātiski pielāgo kaloriju un makro mērķus |
