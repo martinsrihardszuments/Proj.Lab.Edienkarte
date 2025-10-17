@@ -4,4 +4,9 @@
 ## Kristers
 ## Jānis
 ## Eduards
-#Tehnoloģijas Steks
+### 🧩 Projekta tehnoloģijas
+OS: Ubuntu  
+Valoda: Python  
+Web serveris: Django  
+MVC: Django  
+DB: MySQL  
