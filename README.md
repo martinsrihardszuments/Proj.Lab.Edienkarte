@@ -18,8 +18,8 @@
 | **Lifesum** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | iOS / Android | Daudz diētu un recepšu |
 | **YAZIO** | ✅ | ✅ | 🟠 Daži plāni | 🟠 Ierobežota | 🟠 Ierobežota | ❌ | ✅ | iOS / Android | Koncentrējas uz badošanos |
 | **Carb Manager** | ✅ | ✅ (zema ogļh.) | ✅ | ✅ | ✅ | ❌ | ✅ | iOS / Android / Web | Keto fokuss, pilni ēdienreižu plāni |
-| **MacroFactor** | ✅ *(adaptīvs)* | ✅ *(automātiski pielāgojas)* | ❌ | ❌ | ❌ | ❌ | ✅ | iOS / Android | Automātiski pielāgo kaloriju un makro mērķus |
-| **Samsung Food (Whisk)** | ✅ *(pamata)* | 🟠 Ierobežoti | ✅ *(AI plāni)* | ✅ | ✅ | 🟠 Nav precīzu cenu, tikai veikalu saites | ✅ | iOS / Android / Web | AI plānošana un virtuves pārvaldība |
+| **MacroFactor** | ✅  | ✅ | ✅ | ❌ | 🟠 nevar fltret, var personalizet edienus | ❌ | ❌ | ✅ | iOS / Android | Automātiski pielāgo kaloriju un makro mērķus |
+| **Samsung Food (Whisk)** | ✅ | 🟠 Ierobežoti, gatavi pláni |🟠 Ierobežoti, gatavi pláni, kurus var rediģēt | ✅ | 🟠 var rediģēt ēdienus un atzīmēt ēdienus | ✅ | ❌ | ✅ | iOS / Android / Web | AI plānošana un virtuves pārvaldība |
 | **Lose It!** | ✅ | ✅ | 🟠 Ieteiktie plāni (Premium) | 🟠 Ierobežoti | ❌ | ❌ | ✅ | iOS / Android / Web | Liela lietotāju bāze |
 | **Fooducate** | ✅ | ✅ *(pamata)* | ❌ | 🟠 Diētu filtri | ❌ | ❌ | 🟠 Kopienas receptes | iOS / Android / Web | Uzsvars uz produktu kvalitāti |
 
