@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="lv">
+<head>
+  <meta charset="utf-8">
+  <title>Ēdienkaršu ģenerators (Skeleton)</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; max-width: 900px; margin: 40px auto; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
+    .btn { display:inline-block; padding:8px 12px; border:1px solid #333; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <h1>Ēdienkaršu ģenerators (demo)</h1>
+  <p>
+    <a class="btn" href="/seed/">Ielādēt demo datus</a>
+    <a class="btn" href="/generate/">Ģenerēt plānu</a>
+  </p>
+
+  {% if plan %}
+    <h2>Pēdējais plāns ({{ plan.days }} dienas)</h2>
+    <p>Kopsumma: {{ plan.total_kcal }} kcal | € {{ plan.total_price }}</p>
+    <table>
+      <thead><tr><th>Diena</th><th>Ēdienreize</th><th>Recepte</th><th>Kcal</th><th>Cena (€)</th></tr></thead>
+      <tbody>
+      {% for meal in plan.meals.all %}
+        {% with nut=meal.recipe.nutrition_and_price %}
+        <tr>
+          <td>{{ meal.day_index }}</td>
+          <td>
+            {% if meal.meal_type == "B" %}Brokastis{% elif meal.meal_type == "L" %}Pusdienas{% else %}Vakariņas{% endif %}
+          </td>
+          <td>{{ meal.recipe.name }}</td>
+          <td>{{ nut.kcal }}</td>
+          <td>{{ nut.price }}</td>
+        </tr>
+        {% endwith %}
+      {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Vēl nav plāna. Sāc ar "Ielādēt demo datus", tad "Ģenerēt plānu".</p>
+  {% endif %}
+</body>
+</html>

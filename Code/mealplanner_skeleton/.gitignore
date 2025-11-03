@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.log
+
+# Django
+db.sqlite3
+staticfiles/
+media/
+
+# Envs
+.venv/
+.env
+
+# Editors
+.vscode/
+.idea/
