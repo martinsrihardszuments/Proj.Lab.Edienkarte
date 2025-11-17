@@ -1,0 +1,25 @@
+<!doctype html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Meal Planner{% endblock %}</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="{% static 'css/main.css' %}" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <header class="p-4 bg-white border-b">
+    <div class="container mx-auto">
+      <a href="/" class="font-semibold text-lg">Meal Planner</a>
+    </div>
+  </header>
+
+  <main class="container mx-auto p-4">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="p-4 text-sm text-center text-gray-600">
+    © Meal Planner
+  </footer>
+</body>
+</html>
