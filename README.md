@@ -28,8 +28,8 @@
 
 
 ## 🧩 Tehnoloģijas Steks
-**Backend**: Django 5.0.6
-**Database**: SQLite
-**Frontend**: HTML, Tailwind CSS
-**API**: Open Food Facts
-**Python**: 3.13
+### Backend**: Django 5.0.6
+### Database**: SQLite
+### Frontend**: HTML, Tailwind CSS
+### API**: Open Food Facts
+### Python**: 3.13
