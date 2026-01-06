@@ -70,21 +70,88 @@ def _pick_meal_for_target(recipes, target_kcal, used_recent):
                 best, best_diff = r, diff
     return best
 
-def _create_balanced_meal(meal_type: str, target_kcal: int, recent_products: set):
+def _product_contains_allergen(product_name: str, allergen: str) -> bool:
+    """Check if a product name contains an allergen keyword"""
+    product_lower = product_name.lower()
+    allergen_lower = allergen.lower()
+    
+    # Direct match
+    if allergen_lower in product_lower:
+        return True
+    
+    # Special cases and synonyms
+    allergen_synonyms = {
+        'milk': ['milk', 'dairy', 'cream', 'butter'],
+        'eggs': ['egg'],
+        'fish': ['fish', 'salmon', 'tuna', 'cod', 'tilapia'],
+        'shellfish': ['shrimp', 'crab', 'lobster', 'shellfish'],
+        'nuts': ['nut', 'almond', 'walnut', 'cashew', 'hazelnut'],
+        'peanuts': ['peanut'],
+        'wheat': ['wheat', 'flour', 'bread'],
+        'soy': ['soy', 'tofu', 'edamame'],
+        'meat': ['meat', 'beef', 'pork', 'lamb', 'veal'],
+        'chicken': ['chicken', 'poultry'],
+        'pork': ['pork', 'bacon', 'ham'],
+        'beef': ['beef', 'steak'],
+        'rice': ['rice'],
+        'pasta': ['pasta', 'spaghetti', 'noodle'],
+        'potato': ['potato'],
+        'tomato': ['tomato'],
+        'onion': ['onion'],
+        'garlic': ['garlic'],
+        'cheese': ['cheese', 'cheddar', 'mozzarella', 'parmesan'],
+        'yogurt': ['yogurt', 'yoghurt'],
+        'bread': ['bread', 'toast'],
+    }
+    
+    # Check synonyms
+    for synonym in allergen_synonyms.get(allergen_lower, [allergen_lower]):
+        if synonym in product_lower:
+            return True
+    
+    return False
+
+def _filter_products_by_allergens(products, excluded_items: list):
+    """Filter out products that contain any of the excluded items"""
+    if not excluded_items:
+        return products
+    
+    filtered = []
+    for product in products:
+        has_allergen = False
+        for allergen in excluded_items:
+            if _product_contains_allergen(product.name, allergen):
+                has_allergen = True
+                break
+        if not has_allergen:
+            filtered.append(product)
+    
+    return filtered
+
+def _create_balanced_meal(meal_type: str, target_kcal: int, recent_products: set, excluded_items: list = None):
     """
     Create a balanced meal with carbs + protein + vitamins for lunch/dinner
     or breakfast foods for breakfast.
     Returns a Recipe object.
     """
+    if excluded_items is None:
+        excluded_items = []
+    
     if meal_type == "B":
         # Breakfast: eggs/oats + fruit/yogurt
         breakfast_foods = list(Product.objects.filter(category='BREAKFAST').exclude(id__in=recent_products))
         vitamins = list(Product.objects.filter(category='VITAMINS').exclude(id__in=recent_products))
         
+        # Filter by allergies
+        breakfast_foods = _filter_products_by_allergens(breakfast_foods, excluded_items)
+        vitamins = _filter_products_by_allergens(vitamins, excluded_items)
+        
         if not breakfast_foods:
             breakfast_foods = list(Product.objects.filter(category='BREAKFAST'))
+            breakfast_foods = _filter_products_by_allergens(breakfast_foods, excluded_items)
         if not vitamins:
             vitamins = list(Product.objects.filter(category='VITAMINS'))
+            vitamins = _filter_products_by_allergens(vitamins, excluded_items)
         
         if breakfast_foods and vitamins:
             main = choice(breakfast_foods)
@@ -108,13 +175,21 @@ def _create_balanced_meal(meal_type: str, target_kcal: int, recent_products: set
         carbs = list(Product.objects.filter(category='CARBS').exclude(id__in=recent_products))
         vitamins = list(Product.objects.filter(category='VITAMINS').exclude(id__in=recent_products))
         
+        # Filter by allergies
+        proteins = _filter_products_by_allergens(proteins, excluded_items)
+        carbs = _filter_products_by_allergens(carbs, excluded_items)
+        vitamins = _filter_products_by_allergens(vitamins, excluded_items)
+        
         # Fallback if recent filter removes all
         if not proteins:
             proteins = list(Product.objects.filter(category='PROTEIN'))
+            proteins = _filter_products_by_allergens(proteins, excluded_items)
         if not carbs:
             carbs = list(Product.objects.filter(category='CARBS'))
+            carbs = _filter_products_by_allergens(carbs, excluded_items)
         if not vitamins:
             vitamins = list(Product.objects.filter(category='VITAMINS'))
+            vitamins = _filter_products_by_allergens(vitamins, excluded_items)
         
         if proteins and carbs and vitamins:
             protein = choice(proteins)
@@ -156,7 +231,11 @@ def generate_plan_calorie_based(profile: dict, days: int = 7, recent_window: int
     Generate a balanced meal plan with proper food categories:
     - Breakfast: breakfast foods (eggs, oats) + vitamins (fruits)
     - Lunch/Dinner: protein + carbs + vitamins
+    - Excludes allergens and disliked foods
     """
+    # Get excluded items from profile
+    excluded_items = profile.get('allergies_and_dislikes', [])
+    
     # 1) Check if we have products in all categories
     breakfast_count = Product.objects.filter(category='BREAKFAST').count()
     protein_count = Product.objects.filter(category='PROTEIN').count()
@@ -182,7 +261,7 @@ def generate_plan_calorie_based(profile: dict, days: int = 7, recent_window: int
     for day in range(1, days+1):
         targets = _daily_targets(day_kcal)  # {"B":..., "L":..., "D":...}
         for meal_type, kcal_target in targets.items():
-            recipe = _create_balanced_meal(meal_type, kcal_target, set(recent_product_ids))
+            recipe = _create_balanced_meal(meal_type, kcal_target, set(recent_product_ids), excluded_items)
             if recipe:
                 Meal.objects.create(plan=plan, recipe=recipe, meal_type=meal_type, day_index=day)
                 nut = recipe.nutrition_and_price()

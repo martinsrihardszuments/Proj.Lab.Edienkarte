@@ -62,12 +62,28 @@
         </label>
         {{ form.target_kcal|add_class:"w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition bg-white" }}
       </div>
-      <div class="md:col-span-2 bg-gradient-to-br from-teal-50 to-teal-100 p-4 rounded-xl border border-teal-200">
-        <label class="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-2">
-          <span class="text-lg">📝</span> Diet notes (allergies, dislikes)
+      
+      <!-- New Allergies & Foods to Avoid Section -->
+      <div class="col-span-full bg-gradient-to-br from-red-50 to-orange-50 p-6 rounded-xl border-2 border-red-200">
+        <label class="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-3">
+          <span class="text-2xl">🚫</span> 
+          <span class="text-lg">Allergies & Foods to Avoid</span>
         </label>
-        {{ form.diet_notes|add_class:"w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition bg-white" }}
+        <p class="text-xs text-gray-600 mb-4">Select all items you want to exclude from your meal plan</p>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {% for choice_value, choice_label in form.allergies_and_dislikes.field.choices %}
+          <div class="bg-white rounded-lg p-3 border-2 border-gray-200 hover:border-red-300 transition">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" name="allergies_and_dislikes" value="{{ choice_value }}" 
+                     {% if choice_value in form.allergies_and_dislikes.value %}checked{% endif %}
+                     class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500 focus:ring-2">
+              <span class="text-sm text-gray-700">{{ choice_label }}</span>
+            </label>
+          </div>
+          {% endfor %}
+        </div>
       </div>
+      
       <div class="col-span-full mt-2">
         <button class="w-full px-6 py-4 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white font-bold text-xl shadow-2xl hover:shadow-3xl hover:scale-105 transition transform hover:from-purple-700 hover:via-pink-700 hover:to-red-700">
           ✨ Generate 3 Meal Plan Options ✨
