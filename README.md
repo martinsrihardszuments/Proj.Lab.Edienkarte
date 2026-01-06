@@ -28,8 +28,8 @@
 
 
 ## 🧩 Tehnoloģijas Steks
-OS: Ubuntu  
-Valoda: Python  
-Web serveris: Django  
-MVC: Django  
-DB: MySQL  
+**Backend**: Django 5.0.6
+**Database**: SQLite
+**Frontend**: HTML, Tailwind CSS
+**API**: Open Food Facts
+**Python**: 3.13
