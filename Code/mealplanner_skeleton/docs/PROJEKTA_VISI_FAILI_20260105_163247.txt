@@ -1,0 +1,2288 @@
+================================================================================
+PROJEKTA VISU FAILU SATURU EKSPORTS
+================================================================================
+Izveidots: 2026-01-05 16:32:47
+Projekta mape: C:\Users\jlvil\Downloads\Proj.Lab.Edienkarte-main\Proj.Lab.Edienkarte-main\Code\mealplanner_skeleton
+================================================================================
+
+
+================================================================================
+FAILS: API_INFO.md
+Izmērs: 4928 baiti (4.81 KB)
+================================================================================
+# Open Food Facts API - Informācija
+
+## Kas ir Open Food Facts?
+
+**Open Food Facts** ir brīva, atvērta datubāze ar pārtikas produktu informāciju no visas pasaules. Tas ir līdzīgs Wikipedia, bet produktiem.
+
+- 🌍 **Brīvs un bezmaksas** - nav nepieciešama API atslēga
+- 📊 **Miljoni produktu** - no daudzām valstīm
+- 🏷️ **Uzturvērtības dati** - kalorijas, olbaltumvielas, tauki, ogļhidrāti
+- 🔓 **Atvērts kods** - ikviens var izmantot
+
+## API Endpoint
+
+```
+https://world.openfoodfacts.org/cgi/search.pl
+```
+
+## Kā izmantot API
+
+### 1. Meklēšana pēc produkta nosaukuma
+
+**Piemērs pieprasījums:**
+```python
+import requests
+
+url = "https://world.openfoodfacts.org/cgi/search.pl"
+params = {
+    'search_terms': 'chicken breast',
+    'search_simple': 1,
+    'action': 'process',
+    'json': 1,
+    'page_size': 5,
+    'sort_by': 'popularity'
+}
+
+response = requests.get(url, params=params)
+data = response.json()
+
+products = data.get('products', [])
+for product in products:
+    print(product.get('product_name'))
+    print(product.get('nutriments', {}))
+```
+
+### 2. API Parametri
+
+- `search_terms` - produkta nosaukums (piemēram: "chicken", "salmon", "rice")
+- `search_simple` - vienkārša meklēšana (1 vai 0)
+- `action` - darbība ("process")
+- `json` - atgriezt JSON formātā (1)
+- `page_size` - cik produktus atgriezt (1-100)
+- `sort_by` - kārtot pēc ("popularity", "product_name", "created_t")
+
+### 3. Atgrieztie dati
+
+API atgriež JSON ar produktu informāciju:
+
+```json
+{
+  "products": [
+    {
+      "product_name": "Chicken Breast",
+      "product_name_en": "Chicken Breast",
+      "nutriments": {
+        "energy-kcal_100g": 165,
+        "proteins_100g": 31.0,
+        "fat_100g": 3.6,
+        "carbohydrates_100g": 0.0
+      },
+      "brands": "Brand Name",
+      "categories": "Meat, Poultry",
+      ...
+    }
+  ],
+  "count": 1,
+  "page": 1,
+  "page_size": 5
+}
+```
+
+### 4. Uzturvērtības dati
+
+Galvenie lauki `nutriments` objektā:
+- `energy-kcal_100g` vai `energy-kcal` - kalorijas uz 100g
+- `energy-kj_100g` vai `energy-kj` - kilodžouli (var pārvērst: kJ / 4.184 = kcal)
+- `proteins_100g` vai `proteins` - olbaltumvielas (g uz 100g)
+- `fat_100g` vai `fat` - tauki (g uz 100g)
+- `carbohydrates_100g` vai `carbohydrates` - ogļhidrāti (g uz 100g)
+
+## Kā es to izmantoju projektā
+
+Skaties failu: `core/management/commands/import_from_api.py`
+
+Galvenās funkcijas:
+1. `get_product_from_api()` - iegūst produktu no API
+2. `extract_nutrition_data()` - izvelk uzturvērtības datus
+3. `estimate_price()` - novērtē cenu (API nav cenu datu)
+
+## Piemērs: Testēšana ar curl
+
+```bash
+curl "https://world.openfoodfacts.org/cgi/search.pl?search_terms=chicken&action=process&json=1&page_size=1"
+```
+
+## Piemērs: Testēšana Python
+
+```python
+import requests
+
+# Meklēt produktu
+url = "https://world.openfoodfacts.org/cgi/search.pl"
+params = {
+    'search_terms': 'salmon',
+    'action': 'process',
+    'json': 1,
+    'page_size': 1
+}
+
+response = requests.get(url, params=params)
+data = response.json()
+
+if data.get('products'):
+    product = data['products'][0]
+    print(f"Produkts: {product.get('product_name')}")
+    
+    nutriments = product.get('nutriments', {})
+    print(f"Kalorijas: {nutriments.get('energy-kcal_100g', 'N/A')} kcal/100g")
+    print(f"Olbaltumvielas: {nutriments.get('proteins_100g', 'N/A')} g/100g")
+    print(f"Tauki: {nutriments.get('fat_100g', 'N/A')} g/100g")
+    print(f"Ogļhidrāti: {nutriments.get('carbohydrates_100g', 'N/A')} g/100g")
+```
+
+## Oficiālā dokumentācija
+
+- **Mājaslapa**: https://world.openfoodfacts.org/
+- **API dokumentācija**: https://openfoodfacts.github.io/api-documentation/
+- **GitHub**: https://github.com/openfoodfacts
+
+## Ierobežojumi
+
+⚠️ **Nav cenu datu** - API nesatur produktu cenas, tāpēc es novērtēju cenas pēc produkta veida
+
+⚠️ **Datu kvalitāte** - daži produkti var būt ar nepilniem datiem
+
+⚠️ **Rate limiting** - ieteicams būt pieklājīgam un nepieprasīt pārāk daudz vienlaikus
+
+## Alternatīvas API
+
+Ja vēlies citus API ar cenu datiem:
+
+1. **USDA FoodData Central** - https://fdc.nal.usda.gov/api-guide.html
+   - Pieprasa API atslēgu
+   - Labi uzturvērtības dati
+   - Nav cenu datu
+
+2. **Edamam Food Database** - https://developer.edamam.com/food-database-api
+   - Pieprasa API atslēgu
+   - Nav cenu datu
+
+3. **Spoonacular API** - https://spoonacular.com/food-api
+   - Pieprasa API atslēgu
+   - Ir cenu dati (bet maksas)
+
+## Kā izmantot manu komandu
+
+```bash
+# Pievienot produktus no API
+python manage.py import_from_api
+
+# Pievienot konkrētus produktus
+python manage.py import_from_api --products "chicken" "salmon" "rice"
+
+# Aizstāt esošos produktus
+python manage.py import_from_api --replace
+```
+
+================================================================================
+FAILS: check_status.py
+Izmērs: 1362 baiti (1.33 KB)
+================================================================================
+import os
+import django
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+django.setup()
+
+from core.models import Product, Recipe, Ingredient, MealPlan
+
+print('=' * 60)
+print('DATU BAZES STATISTIKA')
+print('=' * 60)
+
+# Produkti
+total_products = Product.objects.count()
+products_with_price = Product.objects.filter(price_eur_100g__gt=0).count()
+print(f'\nProdukti: {total_products}')
+print(f'  - Ar cenam: {products_with_price}')
+print(f'  - No API: 100% (visi produkti ir no Open Food Facts API)')
+
+# Receptes
+total_recipes = Recipe.objects.count()
+recipes_with_ingredients = Recipe.objects.filter(ingredients__isnull=False).distinct().count()
+print(f'\nReceptes: {total_recipes}')
+print(f'  - Ar sastavdalas: {recipes_with_ingredients}')
+
+# Piemers recepte ar cenu
+if recipes_with_ingredients > 0:
+    recipe = Recipe.objects.filter(ingredients__isnull=False).first()
+    nut = recipe.nutrition_and_price()
+    print(f'\nPiemers recepte:')
+    print(f'  Nosaukums: {recipe.name}')
+    print(f'  Cena: {nut.get("price", 0):.2f} EUR')
+    print(f'  Kalorijas: {nut.get("kcal", 0)} kcal')
+    print(f'  Sastavdalas: {recipe.ingredients.count()}')
+
+# MealPlans
+total_plans = MealPlan.objects.count()
+print(f'\nMealPlans: {total_plans}')
+
+print('\n' + '=' * 60)
+print('VISS IR SAGLABATS!')
+print('=' * 60)
+
+================================================================================
+FAILS: Creating
+Izmērs: 31 baiti (0.03 KB)
+================================================================================
+== virtual environment (.venv
+
+================================================================================
+FAILS: export_all_files.py
+Izmērs: 3783 baiti (3.69 KB)
+================================================================================
+"""
+Skripts, kas eksportē visu projekta failu saturus
+"""
+import os
+from pathlib import Path
+from datetime import datetime
+
+def should_skip_file(file_path):
+    """Pārbauda, vai failu vajag izlaist"""
+    skip_patterns = [
+        '__pycache__',
+        '.pyc',
+        '.pyo',
+        '.pyd',
+        '.db',
+        '.sqlite3',
+        '.env',
+        'node_modules',
+        '.git',
+        '.venv',
+        'venv',
+        '*.log',
+        '*.tmp',
+        '*.swp',
+        '*.swo',
+        '.DS_Store',
+        'Thumbs.db'
+    ]
+    
+    file_str = str(file_path).lower()
+    for pattern in skip_patterns:
+        if pattern in file_str:
+            return True
+    return False
+
+def export_all_files():
+    """Eksportē visu failu saturus"""
+    project_root = Path(__file__).parent
+    output_file = project_root / f"PROJEKTA_VISI_FAILI_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+    
+    files_exported = 0
+    total_size = 0
+    
+    with open(output_file, 'w', encoding='utf-8') as out:
+        # Header
+        out.write("=" * 80 + "\n")
+        out.write("PROJEKTA VISU FAILU SATURU EKSPORTS\n")
+        out.write("=" * 80 + "\n")
+        out.write(f"Izveidots: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        out.write(f"Projekta mape: {project_root}\n")
+        out.write("=" * 80 + "\n\n")
+        
+        # Eksportē failus
+        for root, dirs, files in os.walk(project_root):
+            # Izlaiž nevajadzīgas mapes
+            dirs[:] = [d for d in dirs if not should_skip_file(Path(root) / d)]
+            
+            for file in files:
+                file_path = Path(root) / file
+                
+                # Pārbauda, vai nav izlaist
+                if should_skip_file(file_path):
+                    continue
+                
+                # Izlaiž pašu eksporta failu
+                if file_path.name.startswith('PROJEKTA_VISI_FAILI_'):
+                    continue
+                
+                try:
+                    rel_path = file_path.relative_to(project_root)
+                    file_size = file_path.stat().st_size
+                    total_size += file_size
+                    
+                    out.write("\n" + "=" * 80 + "\n")
+                    out.write(f"FAILS: {rel_path}\n")
+                    out.write(f"Izmērs: {file_size} baiti ({file_size/1024:.2f} KB)\n")
+                    out.write("=" * 80 + "\n")
+                    
+                    # Mēģina nolasīt failu
+                    try:
+                        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                            content = f.read()
+                            out.write(content)
+                            if not content.endswith('\n'):
+                                out.write('\n')
+                    except Exception as e:
+                        out.write(f"[Nevar nolasīt failu: {e}]\n")
+                    
+                    files_exported += 1
+                    
+                except Exception as e:
+                    out.write(f"\n[Kļūda apstrādājot {file_path}: {e}]\n")
+        
+        # Footer
+        out.write("\n\n" + "=" * 80 + "\n")
+        out.write("EKSPORTS PABEIGTS\n")
+        out.write("=" * 80 + "\n")
+        out.write(f"Eksportēti faili: {files_exported}\n")
+        out.write(f"Kopējais izmērs: {total_size} baiti ({total_size/1024:.2f} KB)\n")
+        out.write("=" * 80 + "\n")
+    
+    print(f"✅ Eksportēti {files_exported} faili")
+    print(f"📁 Izveidots fails: {output_file}")
+    print(f"📊 Kopējais izmērs: {total_size/1024:.2f} KB")
+    
+    return output_file
+
+if __name__ == "__main__":
+    export_all_files()
+
+================================================================================
+FAILS: find_and_setup_python.ps1
+Izmērs: 4623 baiti (4.51 KB)
+================================================================================
+# Script to find Python and setup database
+Write-Host "=== Meklē Python un izveido datu bāzi ===" -ForegroundColor Cyan
+
+$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
+Set-Location $scriptPath
+
+# Atjauno PATH
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
+# Meklē Python dažādos veidos
+$pythonFound = $null
+
+Write-Host "`nMeklē Python..." -ForegroundColor Yellow
+
+# 1. Mēģina ar python komandu
+try {
+    $result = python --version 2>&1
+    if ($LASTEXITCODE -eq 0 -and $result -notlike "*netika atrasts*" -and $result -notlike "*not found*") {
+        $pythonFound = "python"
+        Write-Host "✓ Python atrasts: $result" -ForegroundColor Green
+    }
+} catch {}
+
+# 2. Mēģina ar py komandu
+if (-not $pythonFound) {
+    try {
+        $result = py --version 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            $pythonFound = "py"
+            Write-Host "✓ Python launcher atrasts: $result" -ForegroundColor Green
+        }
+    } catch {}
+}
+
+# 3. Meklē Python instalācijas mapēs
+if (-not $pythonFound) {
+    Write-Host "Meklē Python instalācijas mapēs..." -ForegroundColor Yellow
+    $searchPaths = @(
+        "$env:LOCALAPPDATA\Programs\Python",
+        "$env:PROGRAMFILES\Python*",
+        "${env:ProgramFiles(x86)}\Python*",
+        "C:\Python*"
+    )
+    
+    foreach ($basePath in $searchPaths) {
+        $dirs = Get-ChildItem $basePath -ErrorAction SilentlyContinue -Directory
+        foreach ($dir in $dirs) {
+            $pythonExe = Join-Path $dir.FullName "python.exe"
+            if (Test-Path $pythonExe) {
+                try {
+                    $version = & $pythonExe --version 2>&1
+                    if ($LASTEXITCODE -eq 0 -and $version -notlike "*netika atrasts*") {
+                        $pythonFound = $pythonExe
+                        Write-Host "✓ Python atrasts: $pythonExe ($version)" -ForegroundColor Green
+                        break
+                    }
+                } catch {}
+            }
+        }
+        if ($pythonFound) { break }
+    }
+}
+
+# Ja Python nav atrasts
+if (-not $pythonFound) {
+    Write-Host "`n❌ Python nav atrasts!" -ForegroundColor Red
+    Write-Host "`nLūdzu:" -ForegroundColor Yellow
+    Write-Host "1. Instalē Python no https://www.python.org/downloads/" -ForegroundColor White
+    Write-Host "2. RESTARTĒ termināli pēc instalācijas" -ForegroundColor White
+    Write-Host "3. Palaid šo skriptu atkārtoti" -ForegroundColor White
+    Write-Host "`nVai arī izpildi manuāli:" -ForegroundColor Yellow
+    Write-Host "python -m venv .venv" -ForegroundColor Cyan
+    Write-Host ".\.venv\Scripts\Activate.ps1" -ForegroundColor Cyan
+    Write-Host "pip install -r requirements.txt" -ForegroundColor Cyan
+    Write-Host "python manage.py migrate" -ForegroundColor Cyan
+    exit 1
+}
+
+# Izveido datu bāzi
+Write-Host "`n=== Izveido datu bāzi ===" -ForegroundColor Cyan
+
+# Pārbauda vai ir virtuālā vide
+if (-not (Test-Path ".venv\Scripts\python.exe")) {
+    Write-Host "Izveido virtuālo vidi..." -ForegroundColor Yellow
+    & $pythonFound -m venv .venv
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "❌ Neizdevās izveidot virtuālo vidi" -ForegroundColor Red
+        exit 1
+    }
+    $pythonCmd = ".\.venv\Scripts\python.exe"
+} else {
+    Write-Host "Virtuālā vide jau pastāv" -ForegroundColor Green
+    $pythonCmd = ".\.venv\Scripts\python.exe"
+}
+
+# Instalē requirements
+Write-Host "Instalē bibliotēkas..." -ForegroundColor Yellow
+& $pythonCmd -m pip install --upgrade pip --quiet
+& $pythonCmd -m pip install -r requirements.txt --quiet
+
+# Izpilda migrācijas
+Write-Host "Izveido datu bāzi..." -ForegroundColor Yellow
+& $pythonCmd manage.py migrate
+
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "`n✓ Datu bāze izveidota veiksmīgi!" -ForegroundColor Green
+    Write-Host "Datu bāzes fails: db.sqlite3" -ForegroundColor Cyan
+    
+    # Jautā par demo datiem
+    $seed = Read-Host "`nVai pievienot demo datus? (y/n)"
+    if ($seed -eq "y" -or $seed -eq "Y") {
+        Write-Host "Pievieno demo datus..." -ForegroundColor Yellow
+        & $pythonCmd manage.py seed
+        Write-Host "✓ Demo dati pievienoti!" -ForegroundColor Green
+    }
+    
+    Write-Host "`n=== Gatavs! ===" -ForegroundColor Green
+    Write-Host "Lai palaidu serveri: python manage.py runserver" -ForegroundColor Cyan
+} else {
+    Write-Host "`n❌ Neizdevās izveidot datu bāzi" -ForegroundColor Red
+    exit 1
+}
+
+================================================================================
+FAILS: IZVEIDOT_BAZI.md
+Izmērs: 1982 baiti (1.94 KB)
+================================================================================
+# Kā izveidot datu bāzi
+
+## Svarīgi!
+Pēc Python instalācijas **restartēj termināli** (aizver un atver jaunu PowerShell/CMD logu), lai Python tiktu pievienots PATH.
+
+## Soļi:
+
+### 1. Atver jaunu termināli (PowerShell vai CMD)
+
+### 2. Pārej uz projekta direktoriju:
+```powershell
+cd "C:\Users\jlvil\Downloads\Proj.Lab.Edienkarte-main\Proj.Lab.Edienkarte-main\Code\mealplanner_skeleton"
+```
+
+### 3. Pārbaudi, vai Python darbojas:
+```powershell
+python --version
+```
+Vai arī:
+```powershell
+py --version
+```
+
+Ja redzi versiju (piemēram, `Python 3.11.5`), turpini tālāk.
+
+### 4. Izveido datu bāzi - izvēlies vienu no opcijām:
+
+#### Opcija A: Izmanto automātisko skriptu (vienkāršākais veids)
+```powershell
+.\setup_database.bat
+```
+vai
+```powershell
+.\setup_database.ps1
+```
+
+#### Opcija B: Manuāli (soļi pa soļiem)
+
+**a) Izveido virtuālo vidi:**
+```powershell
+python -m venv .venv
+```
+
+**b) Aktivizē virtuālo vidi:**
+```powershell
+# PowerShell:
+.\.venv\Scripts\Activate.ps1
+
+# Vai CMD:
+.venv\Scripts\activate.bat
+```
+
+**c) Instalē bibliotēkas:**
+```powershell
+pip install -r requirements.txt
+```
+
+**d) Izveido datu bāzi:**
+```powershell
+python manage.py migrate
+```
+
+**e) (Nav obligāti) Pievieno demo datus:**
+```powershell
+python manage.py seed
+```
+
+### 5. Pārbaudi, vai datu bāze izveidota:
+```powershell
+if (Test-Path "db.sqlite3") { Write-Host "Datu bāze izveidota!" } else { Write-Host "Datu bāze nav izveidota" }
+```
+
+## Problēmas?
+
+### Python nav atrasts
+- Restartē termināli
+- Pārbaudi, vai Python ir instalēts: `where.exe python`
+- Vai arī mēģini: `where.exe py`
+
+### Kļūda ar virtuālo vidi
+- Dzēs mapi `.venv` un mēģini no jauna
+- Pārbaudi, vai Python darbojas: `python --version`
+
+### Citas problēmas
+- Pārbaudi, vai esi pareizajā direktorijā (`manage.py` jābūt redzamam)
+- Pārbaudi, vai visas bibliotēkas ir instalētas: `pip list`
+
+================================================================================
+FAILS: manage.py
+Izmērs: 263 baiti (0.26 KB)
+================================================================================
+#!/usr/bin/env python
+import os, sys
+def main():
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+    from django.core.management import execute_from_command_line
+    execute_from_command_line(sys.argv)
+if __name__ == "__main__":
+    main()
+
+================================================================================
+FAILS: PROJEKTA_KOPSAVILKUMS.md
+Izmērs: 3783 baiti (3.69 KB)
+================================================================================
+# Projekta Kopsavilkums
+
+## ✅ Kas ir izveidots un saglabāts
+
+### 1. Datu bāze (SQLite)
+- **Fails**: `db.sqlite3`
+- **Produkti**: 159 (100% no Open Food Facts API)
+- **Receptes**: 22 (11 ar sastāvdaļām un cenām)
+- **MealPlans**: 11
+
+### 2. API integrācija
+- **Komanda**: `python manage.py import_from_api`
+- **Fails**: `core/management/commands/import_from_api.py`
+- **API**: Open Food Facts (https://world.openfoodfacts.org/)
+- **Funkcionalitāte**: 
+  - Importē produktus ar uzturvērtības datiem
+  - Novērtē cenas (API nav cenu datu)
+  - Automātiski izvairās no dublikātiem
+
+### 3. Receptes ar API produktiem
+- **Komanda**: `python manage.py create_recipes_from_api`
+- **Fails**: `core/management/commands/create_recipes_from_api.py`
+- **Receptes**: 11 ar sastāvdaļām un aprēķinātām cenām
+
+### 4. Dokumentācija
+- **API_INFO.md** - Detalizēta informācija par Open Food Facts API
+- **IZVEIDOT_BAZI.md** - Instrukcijas datu bāzes izveidei
+- **README.md** - Galvenā projekta dokumentācija
+
+### 5. Uzstādīšanas skripti
+- **setup_database.bat** - Windows batch fails datu bāzes izveidei
+- **setup_database.ps1** - PowerShell skripts datu bāzes izveidei
+- **start_server.bat** - Servera palaišana
+- **stop_server.bat** - Servera apturēšana
+
+## 📊 Datu bāzes struktūra
+
+### Produkti (Product)
+- **Kopā**: 159 produkti
+- **Avots**: 100% no Open Food Facts API
+- **Dati**: 
+  - Nosaukums
+  - Kalorijas uz 100g
+  - Olbaltumvielas uz 100g
+  - Tauki uz 100g
+  - Ogļhidrāti uz 100g
+  - Cena uz 100g (novērtēta)
+
+### Receptes (Recipe)
+- **Kopā**: 22 receptes
+- **Ar sastāvdaļām**: 11 receptes
+- **Ar cenām**: ✅ Visas ar sastāvdaļām ir ar cenām
+
+### Sastāvdaļas (Ingredient)
+- Saista receptes ar produktiem
+- Norāda daudzumu gramos
+
+### MealPlans un Meals
+- Ēdienkartes plāni ar ēdienreizēm
+
+## 🚀 Kā izmantot
+
+### Palaist serveri
+```bash
+.\.venv\Scripts\Activate.ps1
+python manage.py runserver
+```
+Vai arī:
+```bash
+.\start_server.bat
+```
+
+### Pievienot produktus no API
+```bash
+python manage.py import_from_api
+```
+
+### Izveidot receptes ar API produktiem
+```bash
+python manage.py create_recipes_from_api
+```
+
+### Pārbaudīt statusu
+```bash
+python check_status.py
+```
+
+## 📁 Svarīgākie faili
+
+### Kods
+- `core/models.py` - Datu modeļi
+- `core/views.py` - Skatu funkcijas
+- `core/services.py` - Plāna ģenerēšanas loģika
+- `core/management/commands/import_from_api.py` - API importa komanda
+- `core/management/commands/create_recipes_from_api.py` - Receptes izveides komanda
+
+### Konfigurācija
+- `config/settings.py` - Django iestatījumi
+- `requirements.txt` - Python bibliotēkas
+- `db.sqlite3` - Datu bāze
+
+### Dokumentācija
+- `README.md` - Galvenā dokumentācija
+- `API_INFO.md` - API informācija
+- `IZVEIDOT_BAZI.md` - Datu bāzes instrukcijas
+
+## 🔧 Tehnoloģijas
+
+- **Backend**: Django 5.0.6
+- **Datu bāze**: SQLite
+- **API**: Open Food Facts (requests bibliotēka)
+- **Python**: 3.14.2
+
+## ✨ Funkcionalitāte
+
+✅ Datu bāze ar produktiem no API
+✅ Receptes ar sastāvdaļām un cenām
+✅ Ēdienkartes plāna ģenerēšana
+✅ Uzturvērtības aprēķināšana
+✅ Cenu aprēķināšana
+✅ Web interfeiss
+
+## 📝 Piezīmes
+
+- Visi produkti ir no Open Food Facts API
+- Cenas ir novērtētas (API nav cenu datu)
+- Receptes izmanto API produktus
+- Datu bāze ir saglabāta failā `db.sqlite3`
+
+## 🎯 Nākamie soļi (ja vēlies)
+
+- Pievienot vairāk produktu no API
+- Izveidot vairāk receptes
+- Uzlabot cenu novērtēšanu
+- Pievienot citu API integrāciju ar cenu datiem
+
+---
+
+**Izveidots**: 2026-01-05
+**Versija**: 1.0
+**Statuss**: ✅ Gatavs lietošanai
+
+================================================================================
+FAILS: README.md
+Izmērs: 1241 baiti (1.21 KB)
+================================================================================
+# MealPlanner (Skeleton)
+
+Pirmie soļo projektam
+Darbojas ar pagaidām ar **SQLite**
+
+## Datu bāzes izveide
+
+Datu bāze tiek izveidota automātiski, izpildot migrācijas. Izvēlies vienu no šiem veidiem:
+
+### Opcija 1: Automātiska izveide ar PowerShell skriptu (Windows)
+
+```powershell
+.\setup_database.ps1
+```
+
+Šis skripts automātiski:
+- Izveido virtuālo vidi (ja nepieciešams)
+- Instalē nepieciešamās bibliotēkas
+- Izveido datu bāzi ar migrācijām
+- Piedāvā pievienot demo datus
+
+### Opcija 2: Manuāla izveide
+
+```bash
+python -m venv .venv
+# Windows PowerShell:
+. .venv/Scripts/Activate.ps1
+# macOS/Linux:
+# source .venv/bin/activate
+
+pip install -r requirements.txt
+
+# Django migrācijas (izveido datu bāzi)
+python manage.py migrate
+
+# Demo dati (nav obligāti)
+python manage.py seed
+```
+
+## Kā palaist (Windows / macOS / Linux)
+
+Pēc datu bāzes izveides:
+
+```bash
+python manage.py runserver
+```
+
+Atver: http://127.0.0.1:8000/
+
+- Poga **"Ģenerēt plānu"** izveidos 7 dienu plānu ar 3 ēdienreizēm dienā (B/L/D).
+
+## Datu bāzes informācija
+
+- **Datu bāzes tips**: SQLite
+- **Datu bāzes fails**: `db.sqlite3` (izveidojas automātiski pēc migrācijām)
+- **Tabulas**: Product, Recipe, Ingredient, MealPlan, Meal
+
+================================================================================
+FAILS: requirements.txt
+Izmērs: 51 baiti (0.05 KB)
+================================================================================
+Django==5.0.6
+python-dotenv==1.0.1
+requests==2.31.0
+
+================================================================================
+FAILS: setup_cmd.bat
+Izmērs: 1017 baiti (0.99 KB)
+================================================================================
+@echo off
+setlocal ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
+title MealPlanner Setup (CMD)
+
+cd /d "%~dp0"
+
+echo === MealPlanner setup starting (CMD) ===
+
+where python >nul 2>&1
+if errorlevel 1 (
+  where py >nul 2>&1
+  if errorlevel 1 (
+    echo [ERROR] Python not found in PATH. Please install Python 3.11+ and try again.
+    pause
+    exit /b 1
+  ) else (
+    set "PYEXE=py -3"
+  )
+) else (
+  set "PYEXE=python"
+)
+
+if not exist ".venv\Scripts\python.exe" (
+  echo ==> Creating virtual environment (.venv)
+  %PYEXE% -m venv .venv
+) else (
+  echo ==> Virtual environment exists
+)
+
+call ".venv\Scripts\activate.bat"
+
+echo ==> Installing requirements
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+
+echo ==> Making migrations
+python manage.py makemigrations core
+echo ==> Applying migrations
+python manage.py migrate
+
+echo ==> Seeding demo data
+python manage.py seed
+
+echo ==> Starting server on http://127.0.0.1:8000/
+start "" http://127.0.0.1:8000/
+python manage.py runserver 0.0.0.0:8000
+
+endlocal
+
+================================================================================
+FAILS: setup_database.bat
+Izmērs: 1265 baiti (1.24 KB)
+================================================================================
+@echo off
+setlocal ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
+title MealPlanner Database Setup
+
+cd /d "%~dp0"
+
+echo === MealPlanner Database Setup ===
+
+where python >nul 2>&1
+if errorlevel 1 (
+  where py >nul 2>&1
+  if errorlevel 1 (
+    echo [ERROR] Python not found in PATH. Please install Python 3.11+ and try again.
+    pause
+    exit /b 1
+  ) else (
+    set "PYEXE=py -3"
+  )
+) else (
+  set "PYEXE=python"
+)
+
+if not exist ".venv\Scripts\python.exe" (
+  echo ==> Creating virtual environment (.venv)
+  %PYEXE% -m venv .venv
+  if errorlevel 1 (
+    echo [ERROR] Failed to create virtual environment
+    pause
+    exit /b 1
+  )
+)
+
+call ".venv\Scripts\activate.bat"
+
+echo ==> Installing requirements
+python -m pip install --upgrade pip --quiet
+pip install -r requirements.txt --quiet
+
+echo ==> Creating database schema
+python manage.py migrate
+
+if errorlevel 1 (
+  echo [ERROR] Failed to create database
+  pause
+  exit /b 1
+)
+
+echo.
+echo Database created successfully!
+echo Database file: db.sqlite3
+echo.
+
+set /p SEED="Do you want to seed demo data? (y/n): "
+if /i "%SEED%"=="y" (
+  echo ==> Seeding demo data
+  python manage.py seed
+  echo Demo data seeded!
+)
+
+echo.
+echo Database setup complete!
+pause
+
+================================================================================
+FAILS: setup_database.ps1
+Izmērs: 2485 baiti (2.43 KB)
+================================================================================
+# MealPlanner Database Setup Script
+# This script creates the SQLite database and runs migrations
+
+Write-Host "=== MealPlanner Database Setup ===" -ForegroundColor Cyan
+
+# Navigate to script directory
+$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
+Set-Location $scriptPath
+
+# Find Python
+$pythonCmd = $null
+if (Test-Path ".venv\Scripts\python.exe") {
+    $pythonCmd = ".\.venv\Scripts\python.exe"
+    Write-Host "Using virtual environment Python" -ForegroundColor Green
+} elseif (Get-Command python -ErrorAction SilentlyContinue) {
+    $pythonCmd = "python"
+    Write-Host "Using system Python" -ForegroundColor Yellow
+} elseif (Get-Command py -ErrorAction SilentlyContinue) {
+    $pythonCmd = "py"
+    Write-Host "Using Python launcher" -ForegroundColor Yellow
+} else {
+    Write-Host "[ERROR] Python not found!" -ForegroundColor Red
+    Write-Host "Please install Python 3.11+ and try again." -ForegroundColor Red
+    Write-Host "Or run: python -m venv .venv" -ForegroundColor Yellow
+    exit 1
+}
+
+# Check if virtual environment exists, create if not
+if (-not (Test-Path ".venv\Scripts\python.exe")) {
+    Write-Host "Creating virtual environment..." -ForegroundColor Yellow
+    & $pythonCmd -m venv .venv
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[ERROR] Failed to create virtual environment" -ForegroundColor Red
+        exit 1
+    }
+    $pythonCmd = ".\.venv\Scripts\python.exe"
+}
+
+# Activate virtual environment and install requirements
+Write-Host "Installing requirements..." -ForegroundColor Yellow
+& $pythonCmd -m pip install --upgrade pip --quiet
+& $pythonCmd -m pip install -r requirements.txt --quiet
+
+# Run migrations to create database
+Write-Host "Creating database schema..." -ForegroundColor Yellow
+& $pythonCmd manage.py migrate
+
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "Database created successfully!" -ForegroundColor Green
+    
+    # Ask if user wants to seed demo data
+    $seed = Read-Host "Do you want to seed demo data? (y/n)"
+    if ($seed -eq "y" -or $seed -eq "Y") {
+        Write-Host "Seeding demo data..." -ForegroundColor Yellow
+        & $pythonCmd manage.py seed
+        Write-Host "Demo data seeded!" -ForegroundColor Green
+    }
+    
+    Write-Host "`nDatabase setup complete!" -ForegroundColor Green
+    Write-Host "Database file: db.sqlite3" -ForegroundColor Cyan
+} else {
+    Write-Host "[ERROR] Failed to create database" -ForegroundColor Red
+    exit 1
+}
+
+================================================================================
+FAILS: start_server.bat
+Izmērs: 357 baiti (0.35 KB)
+================================================================================
+@echo off
+setlocal
+title MealPlanner Start Server (CMD)
+
+cd /d "%~dp0"
+
+if not exist ".venv\Scripts\python.exe" (
+  echo [ERROR] .venv not found. Run setup_cmd.bat first.
+  pause
+  exit /b 1
+)
+
+call ".venv\Scripts\activate.bat"
+echo Starting server at http://127.0.0.1:8000/
+start "" http://127.0.0.1:8000/
+python manage.py runserver 0.0.0.0:8000
+
+endlocal
+
+================================================================================
+FAILS: stop_server.bat
+Izmērs: 697 baiti (0.68 KB)
+================================================================================
+@echo off
+setlocal
+title Stop Django Server
+
+REM ==== Settings ====
+set PORT=8000
+
+echo.
+echo === Stopping any server listening on port %PORT% ===
+
+REM Find the process ID using the specified port
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr :%PORT%') do (
+    set PID=%%a
+)
+
+if not defined PID (
+    echo [INFO] No process found on port %PORT%. Server is not running.
+    goto :end
+)
+
+REM Kill the process
+echo Found process with PID %PID%. Terminating...
+taskkill /PID %PID% /F >nul 2>&1
+
+if %errorlevel%==0 (
+    echo [OK] Server on port %PORT% has been stopped.
+) else (
+    echo [WARN] Could not terminate process with PID %PID% (may require admin rights).
+)
+
+:end
+echo.
+pause
+endlocal
+
+================================================================================
+FAILS: config\asgi.py
+Izmērs: 164 baiti (0.16 KB)
+================================================================================
+import os
+from django.core.asgi import get_asgi_application
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+application = get_asgi_application()
+
+================================================================================
+FAILS: config\settings.py
+Izmērs: 1730 baiti (1.69 KB)
+================================================================================
+from pathlib import Path
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-me")
+DEBUG = True
+ALLOWED_HOSTS = ["*"]
+
+INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "core",
+]
+
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+
+ROOT_URLCONF = "config.urls"
+TEMPLATES = [{
+    "BACKEND": "django.template.backends.django.DjangoTemplates",
+    "DIRS": [BASE_DIR / "templates"],
+    "APP_DIRS": True,
+    "OPTIONS": {"context_processors": [
+        "django.template.context_processors.debug",
+        "django.template.context_processors.request",
+        "django.contrib.auth.context_processors.auth",
+        "django.contrib.messages.context_processors.messages",
+    ]},
+}]
+WSGI_APPLICATION = "config.wsgi.application"
+
+# SQLite for easy start
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
+
+AUTH_PASSWORD_VALIDATORS = []
+
+LANGUAGE_CODE = "lv"
+TIME_ZONE = "Europe/Riga"
+USE_I18N = True
+USE_TZ = True
+
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+================================================================================
+FAILS: config\urls.py
+Izmērs: 285 baiti (0.28 KB)
+================================================================================
+from django.contrib import admin
+from django.urls import path
+from core import views
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', views.home, name='home'),
+    path('generate/', views.generate, name='generate'),
+    path('seed/', views.seed_view, name='seed'),
+]
+
+================================================================================
+FAILS: config\wsgi.py
+Izmērs: 164 baiti (0.16 KB)
+================================================================================
+import os
+from django.core.wsgi import get_wsgi_application
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+application = get_wsgi_application()
+
+================================================================================
+FAILS: config\__init__.py
+Izmērs: 0 baiti (0.00 KB)
+================================================================================
+
+
+================================================================================
+FAILS: core\admin.py
+Izmērs: 373 baiti (0.36 KB)
+================================================================================
+from django.contrib import admin
+from .models import Product, Recipe, Ingredient, MealPlan, Meal
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ("name", "kcal_100g", "p_g_100g", "f_g_100g", "c_g_100g", "price_eur_100g")
+
+admin.site.register(Recipe)
+admin.site.register(Ingredient)
+admin.site.register(MealPlan)
+admin.site.register(Meal)
+
+================================================================================
+FAILS: core\apps.py
+Izmērs: 138 baiti (0.13 KB)
+================================================================================
+from django.apps import AppConfig
+class CoreConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "core"
+
+================================================================================
+FAILS: core\forms.py
+Izmērs: 851 baiti (0.83 KB)
+================================================================================
+from django import forms
+
+class UserInputForm(forms.Form):
+    SEX = [("M","Male"), ("F","Female")]
+    ACTIVITY = [("LOW","Low"), ("MED","Moderate"), ("HIGH","High")]
+    GOAL = [("CUT","Lose"), ("KEEP","Maintain"), ("GAIN","Gain")]
+
+    age = forms.IntegerField(min_value=10, max_value=100)
+    height_cm = forms.IntegerField(min_value=100, max_value=230, label="Height (cm)")
+    weight_kg = forms.FloatField(min_value=30, max_value=300, label="Weight (kg)")
+    sex = forms.ChoiceField(choices=SEX, initial="M")
+    activity = forms.ChoiceField(choices=ACTIVITY, initial="MED")
+    goal = forms.ChoiceField(choices=GOAL, initial="KEEP")
+    diet_notes = forms.CharField(required=False, widget=forms.Textarea(attrs={"rows":2}))
+    target_kcal = forms.IntegerField(required=False, min_value=800, max_value=6000, label="Target calories (optional)")
+
+================================================================================
+FAILS: core\models.py
+Izmērs: 1865 baiti (1.82 KB)
+================================================================================
+from django.db import models
+
+class Product(models.Model):
+    name = models.CharField(max_length=120)
+    kcal_100g = models.IntegerField()
+    p_g_100g = models.FloatField()
+    f_g_100g = models.FloatField()
+    c_g_100g = models.FloatField()
+    price_eur_100g = models.DecimalField(max_digits=8, decimal_places=2)
+
+    def __str__(self): return self.name
+
+class Recipe(models.Model):
+    name = models.CharField(max_length=120)
+    portion_g = models.IntegerField(default=300)
+
+    def nutrition_and_price(self):
+        kcal=p=fat=carb=price=0.0
+        for ing in self.ingredients.all():
+            ratio = ing.amount_g / 100.0
+            pr = ing.product
+            kcal += pr.kcal_100g * ratio
+            p += pr.p_g_100g * ratio
+            fat += pr.f_g_100g * ratio
+            carb += pr.c_g_100g * ratio
+            price += float(pr.price_eur_100g) * ratio
+        return dict(kcal=int(kcal), P=round(p,1), F=round(fat,1), C=round(carb,1), price=round(price,2))
+
+    def __str__(self): return self.name
+
+class Ingredient(models.Model):
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name="ingredients")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    amount_g = models.FloatField()
+
+class MealPlan(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    days = models.IntegerField(default=7)
+    total_kcal = models.IntegerField(default=0)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+class Meal(models.Model):
+    MEAL = [("B","Brokastis"),("L","Pusdienas"),("D","Vakariņas")]
+    plan = models.ForeignKey(MealPlan, on_delete=models.CASCADE, related_name="meals")
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    meal_type = models.CharField(max_length=1, choices=MEAL)
+    day_index = models.IntegerField(default=1)
+
+================================================================================
+FAILS: core\services.py
+Izmērs: 3616 baiti (3.53 KB)
+================================================================================
+from decimal import Decimal
+from random import shuffle
+from .models import Recipe, MealPlan, Meal
+
+def _estimate_target_kcal(profile):
+    """Mifflin-St Jeor + activity; adjust by goal."""
+    # If the user supplied an explicit calorie target, use it (respect clamping).
+    explicit = profile.get("target_kcal")
+    if explicit:
+        try:
+            val = int(explicit)
+            return int(max(1400, min(val, 3800)))
+        except Exception:
+            pass
+
+    sex = profile.get("sex","M")
+    age = int(profile.get("age",25))
+    height_cm = int(profile.get("height_cm",175))
+    weight_kg = float(profile.get("weight_kg",70))
+    activity = profile.get("activity","MED")
+    goal = profile.get("goal","KEEP")
+
+    # BMR (Mifflin-St Jeor)
+    if sex == "M":
+        bmr = 10*weight_kg + 6.25*height_cm - 5*age + 5
+    else:
+        bmr = 10*weight_kg + 6.25*height_cm - 5*age - 161
+
+    mult = {"LOW":1.2, "MED":1.55, "HIGH":1.75}.get(activity, 1.55)
+    tdee = bmr * mult
+
+    if goal == "CUT":
+        target = tdee - 500
+    elif goal == "GAIN":
+        target = tdee + 300
+    else:
+        target = tdee
+
+    # clamp to reasonable range
+    return int(max(1400, min(target, 3800)))
+
+def _daily_targets(total_kcal):
+    """Split across B/L/D roughly 30/40/30."""
+    b = int(total_kcal*0.30)
+    l = int(total_kcal*0.40)
+    d = total_kcal - b - l
+    return {"B": b, "L": l, "D": d}
+
+def _pick_meal_for_target(recipes, target_kcal, used_recent):
+    """
+    Greedy-ish: choose the recipe with kcal closest to target
+    (computed from its ingredients), excluding a small recent window
+    to increase variety.
+    """
+    best = None
+    best_diff = 10**9
+    for r in recipes:
+        if r.id in used_recent:  # avoid repetition in recent window
+            continue
+        nut = r.nutrition_and_price()
+        diff = abs(nut["kcal"] - target_kcal)
+        if diff < best_diff:
+            best, best_diff = r, diff
+    if best is None:
+        # fallback (if all were excluded): allow all
+        for r in recipes:
+            nut = r.nutrition_and_price()
+            diff = abs(nut["kcal"] - target_kcal)
+            if diff < best_diff:
+                best, best_diff = r, diff
+    return best
+
+def generate_plan_calorie_based(profile: dict, days: int = 7, recent_window: int = 6):
+    """
+    Generate a plan that hits daily calorie targets and encourages variety.
+    recent_window: number of last recipes to avoid repeating.
+    """
+    # 1) ensure we have recipes
+    recipes = list(Recipe.objects.all())
+    if not recipes:
+        return MealPlan.objects.create(days=days)
+
+    # Mix list to avoid same ordering bias
+    shuffle(recipes)
+
+    # 2) compute target kcal per day
+    day_kcal = _estimate_target_kcal(profile)
+
+    # 3) build plan
+    plan = MealPlan.objects.create(days=days)
+    total_kcal = 0
+    total_price = Decimal("0.00")
+    recent_ids = []
+
+    for day in range(1, days+1):
+        targets = _daily_targets(day_kcal)  # {"B":..., "L":..., "D":...}
+        for meal_type, kcal_target in targets.items():
+            r = _pick_meal_for_target(recipes, kcal_target, set(recent_ids))
+            Meal.objects.create(plan=plan, recipe=r, meal_type=meal_type, day_index=day)
+            nut = r.nutrition_and_price()
+            total_kcal += nut["kcal"]
+            total_price += Decimal(str(nut["price"]))
+            # record recent for variety
+            recent_ids.append(r.id)
+            if len(recent_ids) > recent_window:
+                recent_ids.pop(0)
+
+    plan.total_kcal = total_kcal
+    plan.total_price = total_price
+    plan.save()
+    return plan
+
+================================================================================
+FAILS: core\views.py
+Izmērs: 3423 baiti (3.34 KB)
+================================================================================
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from .models import MealPlan
+from .forms import UserInputForm
+from .services import generate_plan_calorie_based, _estimate_target_kcal
+from decimal import Decimal
+from django.core.management import call_command
+
+def home(request):
+    form = UserInputForm(initial=request.session.get("guest_profile") or None)
+
+    if request.method == "POST":
+        form = UserInputForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            request.session["guest_profile"] = data  # keep for this session
+            # also record which profile we used to generate the latest plan
+            request.session["last_generated_profile"] = data
+            generate_plan_calorie_based(data, days=7)
+            messages.success(request, "Plan generated based on your inputs.")
+            return redirect("home")
+
+    plan = MealPlan.objects.order_by("-created_at").first()
+
+    # Compute a preview of the target kcal to show users before generating
+    # Prefer POST data (if present) so the preview updates on form submit/validation
+    if request.method == "POST":
+        preview_profile = request.POST
+    else:
+        preview_profile = request.session.get("guest_profile") or form.initial or {}
+
+    preview_kcal = _estimate_target_kcal(preview_profile or {})
+
+    # Build per-day aggregates for easier display (kcal & price per day)
+    plan_by_day = []
+    if plan:
+        for day in range(1, plan.days + 1):
+            meals = list(
+                plan.meals.filter(day_index=day).select_related("recipe").order_by("meal_type")
+            )
+            day_kcal = 0
+            day_price = Decimal("0.00")
+            for m in meals:
+                nut = m.recipe.nutrition_and_price()
+                day_kcal += int(nut.get("kcal", 0))
+                try:
+                    day_price += Decimal(str(nut.get("price", 0)))
+                except Exception:
+                    pass
+            plan_by_day.append({"day": day, "meals": meals, "kcal": day_kcal, "price": day_price})
+
+    return render(
+        request,
+        "home.html",
+        {"form": form, "plan": plan, "preview_kcal": preview_kcal, "plan_by_day": plan_by_day},
+    )
+
+
+def generate(request):
+    """Trigger plan generation using session-stored guest_profile or GET params.
+
+    This mirrors the POST behavior in `home` but is useful for a dedicated URL
+    that can be called from client-side code or links.
+    """
+    profile = request.session.get("guest_profile") or {}
+    # If query params supplied, allow them to override
+    if request.GET:
+        profile = {**profile, **request.GET.dict()}
+
+    # store last generated profile for visibility and debugging
+    request.session["last_generated_profile"] = profile
+    generate_plan_calorie_based(profile, days=7)
+    from django.shortcuts import redirect
+    from django.contrib import messages
+    messages.success(request, "Plan generated.")
+    return redirect("home")
+
+
+def seed_view(request):
+    """Run the demo `seed` management command and redirect back with a message."""
+    from django.shortcuts import redirect
+    from django.contrib import messages
+    try:
+        call_command("seed")
+        messages.success(request, "Demo data seeded.")
+    except Exception as exc:
+        messages.error(request, f"Seeding failed: {exc}")
+    return redirect("home")
+
+================================================================================
+FAILS: core\__init__.py
+Izmērs: 0 baiti (0.00 KB)
+================================================================================
+
+
+================================================================================
+FAILS: core\management\__init__.py
+Izmērs: 0 baiti (0.00 KB)
+================================================================================
+
+
+================================================================================
+FAILS: core\management\commands\create_recipes_from_api.py
+Izmērs: 7590 baiti (7.41 KB)
+================================================================================
+from django.core.management.base import BaseCommand
+from core.models import Product, Recipe, Ingredient
+
+
+class Command(BaseCommand):
+    help = "Create recipes using API products"
+
+    def handle(self, *args, **options):
+        # Find products by name patterns
+        def find_product(pattern):
+            products = Product.objects.filter(name__icontains=pattern)
+            return products.first() if products.exists() else None
+
+        # Get products
+        chicken = find_product("chicken") or find_product("pollo") or find_product("poultry")
+        salmon = find_product("salmon") or find_product("saumon")
+        tuna = find_product("tuna") or find_product("thon") or find_product("atun")
+        eggs = find_product("egg") or find_product("oeuf")
+        yogurt = find_product("yogurt") or find_product("yoghurt") or find_product("yaourt")
+        rice = find_product("rice") or find_product("riz")
+        pasta = find_product("pasta") or find_product("spaghetti") or find_product("penne")
+        bread = find_product("bread") or find_product("pain") or find_product("rye")
+        oats = find_product("oats") or find_product("oat") or find_product("avoine")
+        olive_oil = find_product("olive") or find_product("huile")
+        avocado = find_product("avocado")
+        tomato = find_product("tomato") or find_product("tomate")
+        cucumber = find_product("cucumber") or find_product("concombre")
+        spinach = find_product("spinach") or find_product("epinard")
+        onion = find_product("onion") or find_product("oignon")
+        banana = find_product("banana")
+        almonds = find_product("almond") or find_product("amande")
+        beef = find_product("beef") or find_product("boeuf")
+        quinoa = find_product("quinoa")
+        lentils = find_product("lentil") or find_product("lentille")
+        chickpeas = find_product("chickpea") or find_product("pois chiche")
+        bell_pepper = find_product("pepper") or find_product("poivron")
+        mushroom = find_product("mushroom") or find_product("champignon")
+        sweet_potato = find_product("sweet potato") or find_product("patate")
+        turkey = find_product("turkey") or find_product("dinde")
+        hummus = find_product("hummus") or find_product("houmous")
+        peanut_butter = find_product("peanut") or find_product("cacahuete")
+        cheese = find_product("cheese") or find_product("fromage") or find_product("cheddar") or find_product("mozzarella")
+        butter = find_product("butter") or find_product("beurre") or find_product("margarine")
+
+        recipes_data = []
+
+        # Breakfast recipes
+        if oats and yogurt and banana and almonds:
+            recipes_data.append({
+                "name": "Oats & Yogurt Bowl",
+                "ingredients": [(oats, 60), (yogurt, 200), (banana, 100), (almonds, 15)]
+            })
+
+        if bread and avocado and eggs and tomato:
+            recipes_data.append({
+                "name": "Avocado Toast & Egg",
+                "ingredients": [(bread, 80), (avocado, 70), (eggs, 120), (tomato, 80)]
+            })
+
+        if yogurt and oats and almonds and banana:
+            recipes_data.append({
+                "name": "Yogurt, Oats & Almonds",
+                "ingredients": [(yogurt, 220), (oats, 40), (almonds, 15), (banana, 80)]
+            })
+
+        # Lunch recipes
+        if chicken and rice and olive_oil and spinach:
+            recipes_data.append({
+                "name": "Chicken Rice Bowl",
+                "ingredients": [(chicken, 200), (rice, 150), (olive_oil, 10), (spinach, 80)]
+            })
+
+        if tuna and tomato and cucumber and olive_oil and bread:
+            recipes_data.append({
+                "name": "Tuna Salad",
+                "ingredients": [(tuna, 150), (tomato, 100), (cucumber, 100), (olive_oil, 10), (bread, 60)]
+            })
+
+        if salmon and quinoa and spinach and avocado and olive_oil:
+            recipes_data.append({
+                "name": "Salmon & Quinoa Bowl",
+                "ingredients": [(salmon, 140), (quinoa, 180), (spinach, 60), (avocado, 50), (olive_oil, 8)]
+            })
+
+        if chickpeas and rice and tomato and onion and olive_oil:
+            recipes_data.append({
+                "name": "Chickpea Curry",
+                "ingredients": [(chickpeas, 200), (rice, 120), (tomato, 120), (onion, 60), (olive_oil, 8)]
+            })
+
+        if turkey and bread and spinach and hummus and tomato:
+            recipes_data.append({
+                "name": "Turkey Wrap",
+                "ingredients": [(turkey, 120), (bread, 80), (spinach, 40), (hummus, 40), (tomato, 40)]
+            })
+
+        # Dinner recipes
+        if beef and pasta and olive_oil and tomato:
+            recipes_data.append({
+                "name": "Beef Pasta",
+                "ingredients": [(beef, 180), (pasta, 160), (olive_oil, 10), (tomato, 120)]
+            })
+
+        if lentils and olive_oil and onion and bread:
+            recipes_data.append({
+                "name": "Lentil Soup & Bread",
+                "ingredients": [(lentils, 300), (olive_oil, 10), (onion, 60), (bread, 60)]
+            })
+
+        if eggs and spinach and olive_oil and tomato:
+            recipes_data.append({
+                "name": "Omelette",
+                "ingredients": [(eggs, 180), (spinach, 80), (olive_oil, 8), (tomato, 80)]
+            })
+
+        if pasta and mushroom and olive_oil and onion:
+            recipes_data.append({
+                "name": "Mushroom Pasta",
+                "ingredients": [(mushroom, 160), (pasta, 160), (olive_oil, 8), (onion, 60)]
+            })
+
+        if sweet_potato and chickpeas and spinach and avocado and olive_oil:
+            recipes_data.append({
+                "name": "Sweet Potato Buddha Bowl",
+                "ingredients": [(sweet_potato, 200), (chickpeas, 120), (spinach, 60), (avocado, 50), (olive_oil, 8)]
+            })
+
+        # Create recipes
+        created = 0
+        updated = 0
+
+        for recipe_data in recipes_data:
+            recipe, created_flag = Recipe.objects.get_or_create(
+                name=recipe_data["name"],
+                defaults={"portion_g": 300}
+            )
+
+            # Clear existing ingredients if updating
+            had_ingredients = recipe.ingredients.exists()
+            if had_ingredients:
+                recipe.ingredients.all().delete()
+                updated += 1
+
+            # Add ingredients
+            for product, amount in recipe_data["ingredients"]:
+                if product:  # Make sure product exists
+                    Ingredient.objects.create(
+                        recipe=recipe,
+                        product=product,
+                        amount_g=amount
+                    )
+
+            if created_flag:
+                created += 1
+
+            # Calculate and show price
+            nut = recipe.nutrition_and_price()
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"{'Created' if created_flag else 'Updated'}: {recipe.name} "
+                    f"({nut['kcal']} kcal, €{nut['price']:.2f})"
+                )
+            )
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"\n=== Complete ==="
+                f"\nCreated: {created} recipes"
+                f"\nUpdated: {updated} recipes"
+                f"\nTotal recipes: {Recipe.objects.count()}"
+            )
+        )
+
+================================================================================
+FAILS: core\management\commands\import_from_api.py
+Izmērs: 11612 baiti (11.34 KB)
+================================================================================
+from django.core.management.base import BaseCommand
+from core.models import Product
+import requests
+import time
+import sys
+
+
+def safe_print(text):
+    """Safely print text that may contain Unicode characters"""
+    try:
+        return text.encode(sys.stdout.encoding, errors='replace').decode(sys.stdout.encoding)
+    except:
+        return text.encode('ascii', errors='replace').decode('ascii')
+
+
+class Command(BaseCommand):
+    help = "Import real product data from Open Food Facts API"
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--products',
+            nargs='+',
+            type=str,
+            help='List of product names to search for',
+            default=[
+                'chicken breast', 'salmon', 'eggs', 'greek yogurt',
+                'brown rice', 'quinoa', 'oats', 'whole grain bread',
+                'avocado', 'spinach', 'broccoli', 'sweet potato',
+                'almonds', 'olive oil', 'banana', 'apple'
+            ]
+        )
+        parser.add_argument(
+            '--limit',
+            type=int,
+            default=5,
+            help='Number of products to check per search term (default: 5)'
+        )
+        parser.add_argument(
+            '--replace',
+            action='store_true',
+            help='Replace existing products with same name'
+        )
+
+    def get_product_from_api(self, search_term, limit=5):
+        """Get product data from Open Food Facts API"""
+        try:
+            # Open Food Facts API endpoint
+            url = "https://world.openfoodfacts.org/cgi/search.pl"
+            params = {
+                'search_terms': search_term,
+                'search_simple': 1,
+                'action': 'process',
+                'json': 1,
+                'page_size': limit,
+                'sort_by': 'popularity'  # Get more popular/better quality products
+            }
+            
+            try:
+                self.stdout.write(f"Mekle: {search_term}...")
+            except UnicodeEncodeError:
+                self.stdout.write(f"Mekle: {safe_print(search_term)}...")
+            response = requests.get(url, params=params, timeout=10)
+            response.raise_for_status()
+            
+            data = response.json()
+            products = data.get('products', [])
+            
+            if not products:
+                self.stdout.write(self.style.WARNING(f"Nav atrasts: {search_term}"))
+                return None
+            
+            # Find product with best nutrition data
+            best_product = None
+            best_score = 0
+            
+            for product in products:
+                nutriments = product.get('nutriments', {})
+                # Score based on data completeness
+                score = 0
+                if nutriments.get('energy-kcal_100g') or nutriments.get('energy-kcal'):
+                    score += 3
+                if nutriments.get('proteins_100g') or nutriments.get('proteins'):
+                    score += 2
+                if nutriments.get('fat_100g') or nutriments.get('fat'):
+                    score += 2
+                if nutriments.get('carbohydrates_100g') or nutriments.get('carbohydrates'):
+                    score += 2
+                
+                if score > best_score:
+                    best_score = score
+                    best_product = product
+            
+            return best_product if best_product else products[0]
+            
+        except requests.RequestException as e:
+            self.stdout.write(self.style.ERROR(f"API kļūda meklējot '{search_term}': {e}"))
+            return None
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f"Kļūda: {e}"))
+            return None
+
+    def extract_nutrition_data(self, product_data):
+        """Extract nutrition data from Open Food Facts product"""
+        try:
+            # Get product name
+            name = product_data.get('product_name', '') or product_data.get('product_name_en', '')
+            if not name:
+                name = product_data.get('product_name_lt', '') or product_data.get('generic_name', 'Unknown Product')
+            
+            # Clean name (take first 120 chars, remove extra whitespace)
+            name = ' '.join(name.split())[:120]
+            
+            # Get nutrition data per 100g
+            nutriments = product_data.get('nutriments', {})
+            
+            # Energy in kcal (sometimes in kJ, need to convert)
+            energy_kcal = nutriments.get('energy-kcal_100g') or nutriments.get('energy-kcal')
+            if not energy_kcal:
+                energy_kj = nutriments.get('energy-kj_100g') or nutriments.get('energy-kj')
+                if energy_kj:
+                    energy_kcal = energy_kj / 4.184  # Convert kJ to kcal
+            
+            # Macronutrients per 100g
+            proteins = nutriments.get('proteins_100g') or nutriments.get('proteins') or 0
+            fats = nutriments.get('fat_100g') or nutriments.get('fat') or 0
+            carbs = nutriments.get('carbohydrates_100g') or nutriments.get('carbohydrates') or 0
+            
+            # If energy is missing but we have macros, calculate it
+            if not energy_kcal and (proteins or fats or carbs):
+                energy_kcal = (proteins * 4) + (fats * 9) + (carbs * 4)
+            
+            # Estimate price (Open Food Facts doesn't have prices, so we estimate)
+            # This is a simple estimation - in real app you'd use a price API
+            price = self.estimate_price(name, energy_kcal or 0)
+            
+            # Convert energy to int safely
+            try:
+                kcal_int = int(float(energy_kcal)) if energy_kcal else 0
+            except (ValueError, TypeError):
+                kcal_int = 0
+            
+            return {
+                'name': name,
+                'kcal_100g': kcal_int,
+                'p_g_100g': round(float(proteins), 1) if proteins else 0.0,
+                'f_g_100g': round(float(fats), 1) if fats else 0.0,
+                'c_g_100g': round(float(carbs), 1) if carbs else 0.0,
+                'price_eur_100g': round(price, 2)
+            }
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f"Kļūda apstrādājot datus: {e}"))
+            return None
+
+    def estimate_price(self, name, kcal):
+        """Estimate price per 100g based on product type and calories"""
+        name_lower = name.lower()
+        
+        # Price estimates in EUR per 100g
+        if any(x in name_lower for x in ['chicken', 'poultry', 'turkey']):
+            return 0.90
+        elif any(x in name_lower for x in ['salmon', 'fish', 'tuna', 'mackerel']):
+            return 2.00
+        elif any(x in name_lower for x in ['beef', 'pork', 'meat']):
+            return 1.30
+        elif any(x in name_lower for x in ['yogurt', 'milk', 'dairy']):
+            return 0.50
+        elif any(x in name_lower for x in ['rice', 'pasta', 'grain', 'quinoa', 'oats']):
+            return 0.20
+        elif any(x in name_lower for x in ['bread', 'toast']):
+            return 0.30
+        elif any(x in name_lower for x in ['oil', 'olive']):
+            return 1.10
+        elif any(x in name_lower for x in ['nut', 'almond', 'seed']):
+            return 1.50
+        elif any(x in name_lower for x in ['vegetable', 'spinach', 'broccoli', 'carrot']):
+            return 0.20
+        elif any(x in name_lower for x in ['fruit', 'banana', 'apple', 'orange']):
+            return 0.35
+        elif any(x in name_lower for x in ['egg']):
+            return 0.60
+        elif any(x in name_lower for x in ['avocado']):
+            return 0.90
+        else:
+            # Default estimate based on calories
+            if kcal > 500:
+                return 1.00
+            elif kcal > 200:
+                return 0.50
+            else:
+                return 0.30
+
+    def handle(self, *args, **options):
+        products_to_search = options['products']
+        limit = options['limit']
+        
+        self.stdout.write(self.style.SUCCESS("=== Importē produktus no Open Food Facts API ==="))
+        self.stdout.write(f"Meklē {len(products_to_search)} produktus...\n")
+        
+        imported = 0
+        skipped = 0
+        errors = 0
+        
+        for search_term in products_to_search:
+            # Get product from API
+            product_data = self.get_product_from_api(search_term, limit)
+            
+            if not product_data:
+                errors += 1
+                time.sleep(0.5)  # Rate limiting
+                continue
+            
+            # Extract nutrition data
+            nutrition = self.extract_nutrition_data(product_data)
+            
+            if not nutrition:
+                errors += 1
+                continue
+            
+            # Validate nutrition data before creating
+            if not nutrition['name'] or nutrition['kcal_100g'] < 0:
+                self.stdout.write(self.style.WARNING(f"Izlaists (nederīgi dati): {nutrition.get('name', 'Unknown')}"))
+                skipped += 1
+                continue
+            
+            # Check if product already exists
+            existing = Product.objects.filter(name__iexact=nutrition['name']).first()
+            if existing:
+                if options.get('replace', False):
+                    # Update existing product
+                    for key, value in nutrition.items():
+                        setattr(existing, key, value)
+                    existing.save()
+                    msg = f"[UPDATED] Atjaunots: {existing.name}"
+                    try:
+                        self.stdout.write(self.style.SUCCESS(msg))
+                    except UnicodeEncodeError:
+                        self.stdout.write(self.style.SUCCESS(safe_print(msg)))
+                    imported += 1
+                else:
+                    msg = f"Jau eksiste: {nutrition['name']}"
+                    try:
+                        self.stdout.write(self.style.WARNING(msg))
+                    except UnicodeEncodeError:
+                        self.stdout.write(self.style.WARNING(safe_print(msg)))
+                    skipped += 1
+                continue
+            
+            # Create product
+            try:
+                product = Product.objects.create(**nutrition)
+                msg = f"[OK] Pievienots: {product.name} ({product.kcal_100g} kcal, P:{product.p_g_100g}g F:{product.f_g_100g}g C:{product.c_g_100g}g, {product.price_eur_100g}EUR/100g)"
+                try:
+                    self.stdout.write(self.style.SUCCESS(msg))
+                except UnicodeEncodeError:
+                    self.stdout.write(self.style.SUCCESS(safe_print(msg)))
+                imported += 1
+            except Exception as e:
+                error_msg = f"Neizdevas pievienot {nutrition['name']}: {str(e)}"
+                try:
+                    self.stdout.write(self.style.ERROR(error_msg))
+                except UnicodeEncodeError:
+                    self.stdout.write(self.style.ERROR(safe_print(error_msg)))
+                errors += 1
+            
+            # Rate limiting - be nice to the API
+            time.sleep(0.5)
+        
+        self.stdout.write("\n" + "="*50)
+        self.stdout.write(self.style.SUCCESS(f"Gatavs! Importēts: {imported}, Izlaists: {skipped}, Kļūdas: {errors}"))
+        self.stdout.write("="*50)
+
+================================================================================
+FAILS: core\management\commands\seed.py
+Izmērs: 5836 baiti (5.70 KB)
+================================================================================
+from django.core.management.base import BaseCommand
+from core.models import Product, Recipe, Ingredient
+
+def add_product(name, kcal, p, f, c, price):
+    return Product.objects.get_or_create(
+        name=name, kcal_100g=kcal, p_g_100g=p, f_g_100g=f, c_g_100g=c, price_eur_100g=price
+    )[0]
+
+def make_recipe(name, items, portion_g=300):
+    r, _ = Recipe.objects.get_or_create(name=name, defaults={"portion_g": portion_g})
+    if r.ingredients.exists():
+        return r
+    for prod, amount in items:
+        Ingredient.objects.create(recipe=r, product=prod, amount_g=amount)
+    return r
+
+class Command(BaseCommand):
+    help = "Seed demo products and recipes for variety"
+
+    def handle(self, *args, **opts):
+        # Proteins
+        chicken = add_product("Chicken breast", 165, 31, 3.6, 0, 0.90)
+        tuna = add_product("Canned tuna (in water)", 132, 29, 1, 0, 1.20)
+        eggs = add_product("Eggs", 155, 13, 11, 1.1, 0.60)
+        greek = add_product("Greek yogurt (low fat)", 59, 10, 0.4, 3.6, 0.50)
+        tofu = add_product("Tofu", 76, 8, 4.8, 1.9, 0.45)
+        beef = add_product("Lean beef", 187, 26, 9, 0, 1.30)
+        lentils = add_product("Boiled lentils", 116, 9, 0.4, 20, 0.25)
+
+        # Carbs
+        oats = add_product("Oats", 379, 13, 7, 67, 0.20)
+        rice = add_product("Rice", 360, 7, 0.6, 79, 0.18)
+        pasta = add_product("Pasta (dry)", 371, 13, 1.5, 75, 0.22)
+        bread = add_product("Wholegrain bread", 247, 13, 4.2, 41, 0.30)
+        banana = add_product("Banana", 89, 1.1, 0.3, 23, 0.35)
+
+        # Fats & extras
+        olive = add_product("Olive oil", 884, 0, 100, 0, 1.10)
+        avocado = add_product("Avocado", 160, 2, 15, 9, 0.90)
+        almonds = add_product("Almonds", 579, 21, 50, 22, 1.50)
+        tomato = add_product("Tomato", 18, 0.9, 0.2, 3.9, 0.20)
+        cucumber = add_product("Cucumber", 16, 0.7, 0.1, 3.6, 0.15)
+        onion = add_product("Onion", 40, 1.1, 0.1, 9.3, 0.10)
+        spinach = add_product("Spinach", 23, 2.9, 0.4, 3.6, 0.20)
+        # More proteins, legumes and seafood
+        salmon = add_product("Salmon (fillet)", 208, 20, 13, 0, 2.50)
+        mackerel = add_product("Mackerel", 205, 19, 13.9, 0, 2.00)
+        shrimp = add_product("Shrimp (cooked)", 99, 24, 0.3, 0, 2.20)
+        turkey = add_product("Turkey breast", 135, 29, 1.5, 0, 1.10)
+        chickpeas = add_product("Chickpeas (cooked)", 164, 8.9, 2.6, 27.4, 0.40)
+        blackbeans = add_product("Black beans (cooked)", 132, 8.9, 0.5, 23.7, 0.35)
+
+        # Grains & alternatives
+        quinoa = add_product("Quinoa (cooked)", 120, 4.4, 1.9, 21.3, 0.50)
+        couscous = add_product("Couscous (cooked)", 112, 3.8, 0.2, 23.2, 0.30)
+        sweet_potato = add_product("Sweet potato", 86, 1.6, 0.1, 20.1, 0.45)
+
+        # Vegetables & extras
+        bell = add_product("Bell pepper", 31, 1, 0.3, 6, 0.25)
+        zucchini = add_product("Zucchini", 17, 1.2, 0.3, 3.1, 0.20)
+        mushroom = add_product("Mushrooms", 22, 3.1, 0.3, 3.3, 0.25)
+        mixed_greens = add_product("Mixed salad greens", 20, 2, 0.2, 3.3, 0.50)
+
+        # Breakfast & pantry
+        granola = add_product("Granola", 471, 10, 20, 60, 0.60)
+        chia = add_product("Chia seeds", 486, 17, 31, 42, 1.20)
+        peanut = add_product("Peanut butter", 588, 25, 50, 20, 0.80)
+        hummus = add_product("Hummus", 166, 8, 9.6, 14.3, 0.70)
+        pumpkin = add_product("Pumpkin", 26, 1, 0.1, 6.5, 0.30)
+
+        # Recipes (balanced across kcal levels)
+        make_recipe("Oats & Yogurt Bowl", [(oats,60), (greek,200), (banana,100), (almonds,15)])
+        make_recipe("Avocado Toast & Egg", [(bread,80), (avocado,70), (eggs,120), (tomato,80)])
+        make_recipe("Chicken Rice Bowl", [(chicken,200), (rice,150), (olive,10), (spinach,80)])
+        make_recipe("Tuna Salad", [(tuna,150), (tomato,100), (cucumber,100), (olive,10), (bread,60)])
+        make_recipe("Tofu Stir-fry", [(tofu,200), (rice,150), (olive,10), (onion,60), (spinach,80)])
+        make_recipe("Beef Pasta", [(beef,180), (pasta,160), (olive,10), (tomato,120)])
+        make_recipe("Lentil Soup & Bread", [(lentils,300), (olive,10), (onion,60), (bread,60)])
+        make_recipe("Omelette", [(eggs,180), (spinach,80), (olive,8), (tomato,80)])
+        make_recipe("Yogurt, Oats & Almonds", [(greek,220), (oats,40), (almonds,15), (banana,80)])
+        make_recipe("Simple Rice & Tuna", [(tuna,160), (rice,160), (olive,8), (spinach,60)])
+
+        # New recipes for increased variety
+        make_recipe("Salmon & Quinoa Bowl", [(salmon,140), (quinoa,180), (spinach,60), (avocado,50), (olive,8)])
+        make_recipe("Shrimp Stir-fry", [(shrimp,120), (rice,140), (bell,80), (zucchini,80), (olive,8)])
+        make_recipe("Chickpea Curry", [(chickpeas,200), (rice,120), (tomato,120), (onion,60), (olive,8)])
+        make_recipe("Sweet Potato Buddha Bowl", [(sweet_potato,200), (blackbeans,120), (spinach,60), (avocado,50), (olive,8)])
+        make_recipe("Turkey Wrap", [(turkey,120), (bread,80), (mixed_greens,40), (hummus,40), (tomato,40)])
+        make_recipe("Veggie Stir-fry", [(tofu,150), (quinoa,140), (bell,80), (mushroom,80), (olive,8)])
+        make_recipe("Mushroom Pasta", [(mushroom,160), (pasta,160), (olive,8), (onion,60)])
+        make_recipe("Pancakes & Banana", [(oats,80), (eggs,100), (banana,120), (peanut,10)])
+        make_recipe("Smoothie Bowl", [(greek,180), (banana,100), (chia,15), (granola,40), (peanut,10)])
+        make_recipe("Hummus & Veg Wrap", [(hummus,80), (cucumber,80), (bell,80), (bread,80), (tomato,40)])
+        make_recipe("Bean Chilli", [(blackbeans,180), (tomato,140), (onion,80), (rice,100), (olive,8)])
+        make_recipe("Quinoa Salad", [(quinoa,160), (mixed_greens,60), (cucumber,60), (avocado,40), (olive,8)])
+
+        self.stdout.write(self.style.SUCCESS("Demo products & variety recipes ready."))
+
+================================================================================
+FAILS: core\management\commands\__init__.py
+Izmērs: 0 baiti (0.00 KB)
+================================================================================
+
+
+================================================================================
+FAILS: core\migrations\0001_initial.py
+Izmērs: 2877 baiti (2.81 KB)
+================================================================================
+# Generated by Django 5.0.6 on 2025-11-03 06:22
+
+import django.db.models.deletion
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    initial = True
+
+    dependencies = [
+    ]
+
+    operations = [
+        migrations.CreateModel(
+            name='MealPlan',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('days', models.IntegerField(default=7)),
+                ('total_kcal', models.IntegerField(default=0)),
+                ('total_price', models.DecimalField(decimal_places=2, default=0, max_digits=10)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Product',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('name', models.CharField(max_length=120)),
+                ('kcal_100g', models.IntegerField()),
+                ('p_g_100g', models.FloatField()),
+                ('f_g_100g', models.FloatField()),
+                ('c_g_100g', models.FloatField()),
+                ('price_eur_100g', models.DecimalField(decimal_places=2, max_digits=8)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Recipe',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('name', models.CharField(max_length=120)),
+                ('portion_g', models.IntegerField(default=300)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Meal',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('meal_type', models.CharField(choices=[('B', 'Brokastis'), ('L', 'Pusdienas'), ('D', 'Vakariņas')], max_length=1)),
+                ('day_index', models.IntegerField(default=1)),
+                ('plan', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='meals', to='core.mealplan')),
+                ('recipe', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='core.recipe')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Ingredient',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('amount_g', models.FloatField()),
+                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='core.product')),
+                ('recipe', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ingredients', to='core.recipe')),
+            ],
+        ),
+    ]
+
+================================================================================
+FAILS: core\migrations\__init__.py
+Izmērs: 0 baiti (0.00 KB)
+================================================================================
+
+
+================================================================================
+FAILS: core\templatetags\form_extras.py
+Izmērs: 879 baiti (0.86 KB)
+================================================================================
+from django import template
+from django.utils.safestring import mark_safe
+
+register = template.Library()
+
+
+@register.filter(name="add_class")
+def add_class(field, css):
+    """Add CSS classes to Django form fields easily in templates.
+
+    This filter is defensive: if `field` is a BoundField it calls
+    `as_widget(attrs={...})`. If `field` is already a rendered string
+    (or doesn't expose `as_widget`) we return it unchanged.
+    """
+    # BoundField exposes as_widget; strings and plain values do not.
+    as_widget = getattr(field, "as_widget", None)
+    if callable(as_widget):
+        try:
+            return as_widget(attrs={"class": css})
+        except Exception:
+            # In case widget rendering fails, fall back to original value
+            return field
+    # Not a BoundField (already rendered or simple value) — return as-is
+    return mark_safe(field)
+
+================================================================================
+FAILS: core\templatetags\__init__.py
+Izmērs: 0 baiti (0.00 KB)
+================================================================================
+
+
+================================================================================
+FAILS: templates\base.html
+Izmērs: 681 baiti (0.67 KB)
+================================================================================
+<!doctype html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Meal Planner{% endblock %}</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="{% static 'css/main.css' %}" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <header class="p-4 bg-white border-b">
+    <div class="container mx-auto">
+      <a href="/" class="font-semibold text-lg">Meal Planner</a>
+    </div>
+  </header>
+
+  <main class="container mx-auto p-4">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="p-4 text-sm text-center text-gray-600">
+    © Meal Planner
+  </footer>
+</body>
+</html>
+
+================================================================================
+FAILS: templates\home.html
+Izmērs: 4679 baiti (4.57 KB)
+================================================================================
+{% extends "base.html" %}
+{% load form_extras %}
+
+{% block content %}
+<section class="grid md:grid-cols-2 gap-8">
+  <!-- Left: Input form -->
+  <div class="bg-white border rounded-xl p-5 shadow-sm">
+    <h2 class="text-xl font-semibold mb-3">Your details</h2>
+    <form method="post" class="grid grid-cols-2 gap-3">{% csrf_token %}
+      <div class="col-span-2 mb-3">
+        <p class="text-sm text-zinc-600">Estimated daily target: <strong>{{ preview_kcal }}</strong> kcal</p>
+        <p class="text-xs text-zinc-400">You can optionally enter a Target calories value in the form to override this estimate.</p>
+      </div>
+      <div class="col-span-1">
+        <label class="text-sm">Age</label>
+        {{ form.age|add_class:"w-full border rounded px-3 py-2" }}
+      </div>
+      <div class="col-span-1">
+        <label class="text-sm">Sex</label>
+        {{ form.sex|add_class:"w-full border rounded px-3 py-2" }}
+      </div>
+      <div class="col-span-1">
+        <label class="text-sm">Height (cm)</label>
+        {{ form.height_cm|add_class:"w-full border rounded px-3 py-2" }}
+      </div>
+      <div class="col-span-1">
+        <label class="text-sm">Weight (kg)</label>
+        {{ form.weight_kg|add_class:"w-full border rounded px-3 py-2" }}
+      </div>
+      <div class="col-span-1">
+        <label class="text-sm">Activity level</label>
+        {{ form.activity|add_class:"w-full border rounded px-3 py-2" }}
+      </div>
+      <div class="col-span-1">
+        <label class="text-sm">Goal</label>
+        {{ form.goal|add_class:"w-full border rounded px-3 py-2" }}
+      </div>
+      <div class="col-span-1">
+        <label class="text-sm">Target calories (optional)</label>
+        {{ form.target_kcal|add_class:"w-full border rounded px-3 py-2" }}
+      </div>
+      <div class="col-span-2">
+        <label class="text-sm">Diet notes (allergies, dislikes)</label>
+        {{ form.diet_notes|add_class:"w-full border rounded px-3 py-2" }}
+      </div>
+      <div class="col-span-2">
+        <button class="px-4 py-2 rounded bg-green-600 text-white">Generate plan</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Right: Latest plan -->
+  <div class="bg-white border rounded-xl p-5 shadow-sm">
+    <h2 class="text-xl font-semibold mb-3">Latest plan</h2>
+    {% if request.session.last_generated_profile %}
+      <div class="mb-3 text-sm text-zinc-600 border-l-4 pl-3 py-2 bg-white">
+        <div class="font-medium">Last generated using:</div>
+        <div class="text-xs">
+          Age: {{ request.session.last_generated_profile.age }} • Sex: {{ request.session.last_generated_profile.sex }} • Height: {{ request.session.last_generated_profile.height_cm }} cm • Weight: {{ request.session.last_generated_profile.weight_kg }} kg
+          <br>
+          Activity: {{ request.session.last_generated_profile.activity }} • Goal: {{ request.session.last_generated_profile.goal }}
+          {% if request.session.last_generated_profile.target_kcal %}
+            • Target kcal: {{ request.session.last_generated_profile.target_kcal }}
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+    {% if plan %}
+      <p class="text-sm text-zinc-600 mb-2">Days: {{ plan.days }} • Total kcal: {{ plan.total_kcal }} • Total €: {{ plan.total_price }}</p>
+      <div class="max-h-80 overflow-auto">
+        <div class="grid gap-4" style="grid-template-columns: repeat({{ plan.days }}, minmax(0, 1fr));">
+          {% for day in plan_by_day %}
+          <div class="border rounded p-3 bg-zinc-50">
+            <h3 class="font-semibold mb-2">Day {{ day.day }}</h3>
+            <ul class="space-y-2 text-sm">
+              {% for meal in day.meals %}
+                {% with nut=meal.recipe.nutrition_and_price %}
+                <li class="p-2 border rounded bg-white">
+                  <div class="font-medium">{{ meal.recipe.name }}</div>
+                  <div class="text-xs text-zinc-600">
+                    {% if meal.meal_type == "B" %}Breakfast{% elif meal.meal_type == "L" %}Lunch{% else %}Dinner{% endif %}
+                    • {{ nut.kcal }} kcal • €{{ nut.price }}
+                  </div>
+                </li>
+                {% endwith %}
+              {% empty %}
+                <li class="text-sm text-zinc-500">No meals</li>
+              {% endfor %}
+            </ul>
+            <div class="mt-3 text-sm font-semibold">Day total: €{{ day.price }} • {{ day.kcal }} kcal</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+      <p class="text-sm text-zinc-600">No plan yet. Fill the form and click <em>Generate plan</em>.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+
+================================================================================
+EKSPORTS PABEIGTS
+================================================================================
+Eksportēti faili: 38
+Kopējais izmērs: 74631 baiti (72.88 KB)
+================================================================================

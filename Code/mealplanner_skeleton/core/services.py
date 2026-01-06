@@ -1,6 +1,6 @@
 from decimal import Decimal
-from random import shuffle
-from .models import Recipe, MealPlan, Meal
+from random import shuffle, choice
+from .models import Recipe, MealPlan, Meal, Product, Ingredient
 
 def _estimate_target_kcal(profile):
     """Mifflin-St Jeor + activity; adjust by goal."""
@@ -70,40 +70,157 @@ def _pick_meal_for_target(recipes, target_kcal, used_recent):
                 best, best_diff = r, diff
     return best
 
+def _create_balanced_meal(meal_type: str, target_kcal: int, recent_products: set):
+    """
+    Create a balanced meal with carbs + protein + vitamins for lunch/dinner
+    or breakfast foods for breakfast.
+    Returns a Recipe object.
+    """
+    if meal_type == "B":
+        # Breakfast: eggs/oats + fruit/yogurt
+        breakfast_foods = list(Product.objects.filter(category='BREAKFAST').exclude(id__in=recent_products))
+        vitamins = list(Product.objects.filter(category='VITAMINS').exclude(id__in=recent_products))
+        
+        if not breakfast_foods:
+            breakfast_foods = list(Product.objects.filter(category='BREAKFAST'))
+        if not vitamins:
+            vitamins = list(Product.objects.filter(category='VITAMINS'))
+        
+        if breakfast_foods and vitamins:
+            main = choice(breakfast_foods)
+            side = choice(vitamins)
+            
+            # Calculate portions to hit target (roughly 70/30 split)
+            main_amount = min(300, int(target_kcal * 0.7 / main.kcal_100g * 100))
+            side_amount = min(200, int(target_kcal * 0.3 / side.kcal_100g * 100)) if side.kcal_100g > 0 else 100
+            
+            recipe = Recipe.objects.create(
+                name=f"{main.name} with {side.name}",
+                portion_g=main_amount + side_amount,
+                meal_type='B'
+            )
+            Ingredient.objects.create(recipe=recipe, product=main, amount_g=main_amount)
+            Ingredient.objects.create(recipe=recipe, product=side, amount_g=side_amount)
+            return recipe
+    else:
+        # Lunch/Dinner: protein + carbs + vitamins
+        proteins = list(Product.objects.filter(category='PROTEIN').exclude(id__in=recent_products))
+        carbs = list(Product.objects.filter(category='CARBS').exclude(id__in=recent_products))
+        vitamins = list(Product.objects.filter(category='VITAMINS').exclude(id__in=recent_products))
+        
+        # Fallback if recent filter removes all
+        if not proteins:
+            proteins = list(Product.objects.filter(category='PROTEIN'))
+        if not carbs:
+            carbs = list(Product.objects.filter(category='CARBS'))
+        if not vitamins:
+            vitamins = list(Product.objects.filter(category='VITAMINS'))
+        
+        if proteins and carbs and vitamins:
+            protein = choice(proteins)
+            carb = choice(carbs)
+            vit = choice(vitamins)
+            
+            # Calculate portions to hit target (40% protein, 40% carbs, 20% vitamins)
+            protein_amount = min(200, int(target_kcal * 0.4 / protein.kcal_100g * 100)) if protein.kcal_100g > 0 else 150
+            carb_amount = min(200, int(target_kcal * 0.4 / carb.kcal_100g * 100)) if carb.kcal_100g > 0 else 150
+            vit_amount = min(150, int(target_kcal * 0.2 / vit.kcal_100g * 100)) if vit.kcal_100g > 0 else 100
+            
+            recipe = Recipe.objects.create(
+                name=f"{protein.name} with {carb.name} & {vit.name}",
+                portion_g=protein_amount + carb_amount + vit_amount,
+                meal_type=meal_type
+            )
+            Ingredient.objects.create(recipe=recipe, product=protein, amount_g=protein_amount)
+            Ingredient.objects.create(recipe=recipe, product=carb, amount_g=carb_amount)
+            Ingredient.objects.create(recipe=recipe, product=vit, amount_g=vit_amount)
+            return recipe
+    
+    # Fallback: create a simple meal with any available product
+    all_products = list(Product.objects.all())
+    if all_products:
+        product = choice(all_products)
+        amount = min(300, int(target_kcal / product.kcal_100g * 100)) if product.kcal_100g > 0 else 300
+        recipe = Recipe.objects.create(
+            name=f"{product.name}",
+            portion_g=amount,
+            meal_type=meal_type
+        )
+        Ingredient.objects.create(recipe=recipe, product=product, amount_g=amount)
+        return recipe
+    
+    return None
+
 def generate_plan_calorie_based(profile: dict, days: int = 7, recent_window: int = 6):
     """
-    Generate a plan that hits daily calorie targets and encourages variety.
-    recent_window: number of last recipes to avoid repeating.
+    Generate a balanced meal plan with proper food categories:
+    - Breakfast: breakfast foods (eggs, oats) + vitamins (fruits)
+    - Lunch/Dinner: protein + carbs + vitamins
     """
-    # 1) ensure we have recipes
-    recipes = list(Recipe.objects.all())
-    if not recipes:
+    # 1) Check if we have products in all categories
+    breakfast_count = Product.objects.filter(category='BREAKFAST').count()
+    protein_count = Product.objects.filter(category='PROTEIN').count()
+    carbs_count = Product.objects.filter(category='CARBS').count()
+    vitamins_count = Product.objects.filter(category='VITAMINS').count()
+    
+    if not (breakfast_count and protein_count and carbs_count and vitamins_count):
+        # Not enough categorized products, fallback to old method
+        recipes = list(Recipe.objects.all())
+        if recipes:
+            return _generate_plan_old_method(profile, days, recipes)
         return MealPlan.objects.create(days=days)
-
-    # Mix list to avoid same ordering bias
-    shuffle(recipes)
 
     # 2) compute target kcal per day
     day_kcal = _estimate_target_kcal(profile)
 
-    # 3) build plan
+    # 3) build plan with balanced meals
+    plan = MealPlan.objects.create(days=days)
+    total_kcal = 0
+    total_price = Decimal("0.00")
+    recent_product_ids = []
+
+    for day in range(1, days+1):
+        targets = _daily_targets(day_kcal)  # {"B":..., "L":..., "D":...}
+        for meal_type, kcal_target in targets.items():
+            recipe = _create_balanced_meal(meal_type, kcal_target, set(recent_product_ids))
+            if recipe:
+                Meal.objects.create(plan=plan, recipe=recipe, meal_type=meal_type, day_index=day)
+                nut = recipe.nutrition_and_price()
+                total_kcal += nut["kcal"]
+                total_price += Decimal(str(nut["price"]))
+                
+                # Track recent products for variety
+                for ing in recipe.ingredients.all():
+                    recent_product_ids.append(ing.product.id)
+                    if len(recent_product_ids) > recent_window * 3:  # 3 ingredients per meal
+                        recent_product_ids.pop(0)
+
+    plan.total_kcal = total_kcal
+    plan.total_price = total_price
+    plan.save()
+    return plan
+
+def _generate_plan_old_method(profile: dict, days: int, recipes: list):
+    """Fallback to old recipe-based method if products aren't categorized"""
+    shuffle(recipes)
+    day_kcal = _estimate_target_kcal(profile)
     plan = MealPlan.objects.create(days=days)
     total_kcal = 0
     total_price = Decimal("0.00")
     recent_ids = []
 
     for day in range(1, days+1):
-        targets = _daily_targets(day_kcal)  # {"B":..., "L":..., "D":...}
+        targets = _daily_targets(day_kcal)
         for meal_type, kcal_target in targets.items():
             r = _pick_meal_for_target(recipes, kcal_target, set(recent_ids))
-            Meal.objects.create(plan=plan, recipe=r, meal_type=meal_type, day_index=day)
-            nut = r.nutrition_and_price()
-            total_kcal += nut["kcal"]
-            total_price += Decimal(str(nut["price"]))
-            # record recent for variety
-            recent_ids.append(r.id)
-            if len(recent_ids) > recent_window:
-                recent_ids.pop(0)
+            if r:
+                Meal.objects.create(plan=plan, recipe=r, meal_type=meal_type, day_index=day)
+                nut = r.nutrition_and_price()
+                total_kcal += nut["kcal"]
+                total_price += Decimal(str(nut["price"]))
+                recent_ids.append(r.id)
+                if len(recent_ids) > 6:
+                    recent_ids.pop(0)
 
     plan.total_kcal = total_kcal
     plan.total_price = total_price

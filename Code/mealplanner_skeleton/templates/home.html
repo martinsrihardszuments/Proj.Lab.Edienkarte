@@ -2,99 +2,201 @@
 {% load form_extras %}
 
 {% block content %}
-<section class="grid md:grid-cols-2 gap-8">
-  <!-- Left: Input form -->
-  <div class="bg-white border rounded-xl p-5 shadow-sm">
-    <h2 class="text-xl font-semibold mb-3">Your details</h2>
-    <form method="post" class="grid grid-cols-2 gap-3">{% csrf_token %}
-      <div class="col-span-2 mb-3">
-        <p class="text-sm text-zinc-600">Estimated daily target: <strong>{{ preview_kcal }}</strong> kcal</p>
-        <p class="text-xs text-zinc-400">You can optionally enter a Target calories value in the form to override this estimate.</p>
+<div class="max-w-[1600px] mx-auto space-y-8 px-4">
+  <!-- Input form -->
+  <div class="bg-white rounded-2xl shadow-2xl p-8">
+    <div class="flex items-center justify-center mb-6 gap-3">
+      <div class="text-4xl">🥗</div>
+      <h2 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">Enter Your Details</h2>
+      <div class="text-4xl">🍎</div>
+    </div>
+    <form method="post" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{% csrf_token %}
+      <div class="col-span-full mb-4 bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border-2 border-purple-100 shadow-sm">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">💡</span>
+          <div>
+            <p class="text-sm text-gray-700">Estimated daily target: <strong class="text-purple-600 text-xl">{{ preview_kcal }}</strong> kcal</p>
+            <p class="text-xs text-gray-500 mt-1">You can optionally enter a Target calories value to override this estimate.</p>
+          </div>
+        </div>
       </div>
-      <div class="col-span-1">
-        <label class="text-sm">Age</label>
-        {{ form.age|add_class:"w-full border rounded px-3 py-2" }}
+      <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200">
+        <label class="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-2">
+          <span class="text-lg">📅</span> Age
+        </label>
+        {{ form.age|add_class:"w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition bg-white" }}
       </div>
-      <div class="col-span-1">
-        <label class="text-sm">Sex</label>
-        {{ form.sex|add_class:"w-full border rounded px-3 py-2" }}
+      <div class="bg-gradient-to-br from-pink-50 to-pink-100 p-4 rounded-xl border border-pink-200">
+        <label class="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-2">
+          <span class="text-lg">👤</span> Sex
+        </label>
+        {{ form.sex|add_class:"w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition bg-white" }}
       </div>
-      <div class="col-span-1">
-        <label class="text-sm">Height (cm)</label>
-        {{ form.height_cm|add_class:"w-full border rounded px-3 py-2" }}
+      <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
+        <label class="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-2">
+          <span class="text-lg">📏</span> Height (cm)
+        </label>
+        {{ form.height_cm|add_class:"w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition bg-white" }}
       </div>
-      <div class="col-span-1">
-        <label class="text-sm">Weight (kg)</label>
-        {{ form.weight_kg|add_class:"w-full border rounded px-3 py-2" }}
+      <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 rounded-xl border border-yellow-200">
+        <label class="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-2">
+          <span class="text-lg">⚖️</span> Weight (kg)
+        </label>
+        {{ form.weight_kg|add_class:"w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition bg-white" }}
       </div>
-      <div class="col-span-1">
-        <label class="text-sm">Activity level</label>
-        {{ form.activity|add_class:"w-full border rounded px-3 py-2" }}
+      <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl border border-orange-200">
+        <label class="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-2">
+          <span class="text-lg">🏃</span> Activity level
+        </label>
+        {{ form.activity|add_class:"w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition bg-white" }}
       </div>
-      <div class="col-span-1">
-        <label class="text-sm">Goal</label>
-        {{ form.goal|add_class:"w-full border rounded px-3 py-2" }}
+      <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-xl border border-indigo-200">
+        <label class="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-2">
+          <span class="text-lg">🎯</span> Goal
+        </label>
+        {{ form.goal|add_class:"w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition bg-white" }}
       </div>
-      <div class="col-span-1">
-        <label class="text-sm">Target calories (optional)</label>
-        {{ form.target_kcal|add_class:"w-full border rounded px-3 py-2" }}
+      <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl border border-purple-200">
+        <label class="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-2">
+          <span class="text-lg">🔢</span> Target calories (optional)
+        </label>
+        {{ form.target_kcal|add_class:"w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition bg-white" }}
       </div>
-      <div class="col-span-2">
-        <label class="text-sm">Diet notes (allergies, dislikes)</label>
-        {{ form.diet_notes|add_class:"w-full border rounded px-3 py-2" }}
+      <div class="md:col-span-2 bg-gradient-to-br from-teal-50 to-teal-100 p-4 rounded-xl border border-teal-200">
+        <label class="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-2">
+          <span class="text-lg">📝</span> Diet notes (allergies, dislikes)
+        </label>
+        {{ form.diet_notes|add_class:"w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition bg-white" }}
       </div>
-      <div class="col-span-2">
-        <button class="px-4 py-2 rounded bg-green-600 text-white">Generate plan</button>
+      <div class="col-span-full mt-2">
+        <button class="w-full px-6 py-4 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white font-bold text-xl shadow-2xl hover:shadow-3xl hover:scale-105 transition transform hover:from-purple-700 hover:via-pink-700 hover:to-red-700">
+          ✨ Generate 3 Meal Plan Options ✨
+        </button>
       </div>
     </form>
   </div>
 
-  <!-- Right: Latest plan -->
-  <div class="bg-white border rounded-xl p-5 shadow-sm">
-    <h2 class="text-xl font-semibold mb-3">Latest plan</h2>
+  <!-- Meal Plan Options -->
+  <div class="bg-white rounded-2xl shadow-2xl p-8">
+    <div class="flex items-center justify-center mb-6 gap-3">
+      <div class="text-4xl">📋</div>
+      <h2 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">Choose Your Meal Plan</h2>
+      <div class="text-4xl">✅</div>
+    </div>
     {% if request.session.last_generated_profile %}
-      <div class="mb-3 text-sm text-zinc-600 border-l-4 pl-3 py-2 bg-white">
-        <div class="font-medium">Last generated using:</div>
-        <div class="text-xs">
-          Age: {{ request.session.last_generated_profile.age }} • Sex: {{ request.session.last_generated_profile.sex }} • Height: {{ request.session.last_generated_profile.height_cm }} cm • Weight: {{ request.session.last_generated_profile.weight_kg }} kg
-          <br>
-          Activity: {{ request.session.last_generated_profile.activity }} • Goal: {{ request.session.last_generated_profile.goal }}
+      <div class="mb-8 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-200 rounded-xl p-5 shadow-lg">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-2xl">📊</span>
+          <div class="font-bold text-blue-900 text-lg">Last generated using:</div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+          <div class="bg-white rounded-lg p-2 border border-blue-100">
+            <div class="text-xs text-gray-500">Age</div>
+            <div class="font-semibold text-blue-700">{{ request.session.last_generated_profile.age }} years</div>
+          </div>
+          <div class="bg-white rounded-lg p-2 border border-blue-100">
+            <div class="text-xs text-gray-500">Sex</div>
+            <div class="font-semibold text-blue-700">{{ request.session.last_generated_profile.sex }}</div>
+          </div>
+          <div class="bg-white rounded-lg p-2 border border-blue-100">
+            <div class="text-xs text-gray-500">Height</div>
+            <div class="font-semibold text-blue-700">{{ request.session.last_generated_profile.height_cm }} cm</div>
+          </div>
+          <div class="bg-white rounded-lg p-2 border border-blue-100">
+            <div class="text-xs text-gray-500">Weight</div>
+            <div class="font-semibold text-blue-700">{{ request.session.last_generated_profile.weight_kg }} kg</div>
+          </div>
+          <div class="bg-white rounded-lg p-2 border border-blue-100">
+            <div class="text-xs text-gray-500">Activity</div>
+            <div class="font-semibold text-blue-700">{{ request.session.last_generated_profile.activity }}</div>
+          </div>
+          <div class="bg-white rounded-lg p-2 border border-blue-100">
+            <div class="text-xs text-gray-500">Goal</div>
+            <div class="font-semibold text-blue-700">{{ request.session.last_generated_profile.goal }}</div>
+          </div>
           {% if request.session.last_generated_profile.target_kcal %}
-            • Target kcal: {{ request.session.last_generated_profile.target_kcal }}
+          <div class="bg-white rounded-lg p-2 border border-blue-100 col-span-2">
+            <div class="text-xs text-gray-500">Target Calories</div>
+            <div class="font-semibold text-blue-700">{{ request.session.last_generated_profile.target_kcal }} kcal</div>
+          </div>
           {% endif %}
         </div>
       </div>
     {% endif %}
-    {% if plan %}
-      <p class="text-sm text-zinc-600 mb-2">Days: {{ plan.days }} • Total kcal: {{ plan.total_kcal }} • Total €: {{ plan.total_price }}</p>
-      <div class="max-h-80 overflow-auto">
-        <div class="grid gap-4" style="grid-template-columns: repeat({{ plan.days }}, minmax(0, 1fr));">
-          {% for day in plan_by_day %}
-          <div class="border rounded p-3 bg-zinc-50">
-            <h3 class="font-semibold mb-2">Day {{ day.day }}</h3>
-            <ul class="space-y-2 text-sm">
-              {% for meal in day.meals %}
-                {% with nut=meal.recipe.nutrition_and_price %}
-                <li class="p-2 border rounded bg-white">
-                  <div class="font-medium">{{ meal.recipe.name }}</div>
-                  <div class="text-xs text-zinc-600">
-                    {% if meal.meal_type == "B" %}Breakfast{% elif meal.meal_type == "L" %}Lunch{% else %}Dinner{% endif %}
-                    • {{ nut.kcal }} kcal • €{{ nut.price }}
-                  </div>
-                </li>
-                {% endwith %}
-              {% empty %}
-                <li class="text-sm text-zinc-500">No meals</li>
-              {% endfor %}
-            </ul>
-            <div class="mt-3 text-sm font-semibold">Day total: €{{ day.price }} • {{ day.kcal }} kcal</div>
+    {% if plans %}
+      <div class="grid md:grid-cols-3 gap-6">
+        {% for plan_data in plans %}
+        <div class="border-2 border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition">
+          <!-- Plan Header -->
+          <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4 text-center">
+            <h3 class="text-xl font-bold mb-3">Option {{ plan_data.plan_number }}</h3>
+            <div class="grid grid-cols-3 gap-2 text-sm">
+              <div>
+                <div class="text-xs opacity-75">Days</div>
+                <div class="font-bold text-lg">{{ plan_data.plan.days }}</div>
+              </div>
+              <div>
+                <div class="text-xs opacity-75">Calories</div>
+                <div class="font-bold text-lg">{{ plan_data.plan.total_kcal }}</div>
+              </div>
+              <div>
+                <div class="text-xs opacity-75">Cost</div>
+                <div class="font-bold text-lg">€{{ plan_data.plan.total_price }}</div>
+              </div>
+            </div>
           </div>
-          {% endfor %}
+          
+          <!-- Days List -->
+          <div class="p-4 space-y-3">
+            {% for day in plan_data.plan_by_day %}
+            <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+              <div class="flex justify-between items-center mb-2">
+                <h4 class="font-bold text-gray-800 text-sm">Day {{ day.day }}</h4>
+                <div class="text-xs text-gray-600">
+                  <span class="font-semibold">€{{ day.price }}</span> • <span class="font-semibold">{{ day.kcal }}</span> kcal
+                </div>
+              </div>
+              <div class="space-y-2">
+                {% for meal in day.meals %}
+                  {% with nut=meal.recipe.nutrition_and_price %}
+                  <div class="bg-white rounded p-2 text-xs border border-gray-100">
+                    <div class="flex items-center gap-1 mb-1">
+                      {% if meal.meal_type == "B" %}
+                        <span>🌅</span>
+                        <span class="font-bold text-yellow-600">B</span>
+                      {% elif meal.meal_type == "L" %}
+                        <span>☀️</span>
+                        <span class="font-bold text-orange-600">L</span>
+                      {% else %}
+                        <span>🌙</span>
+                        <span class="font-bold text-indigo-600">D</span>
+                      {% endif %}
+                      <span class="font-semibold text-gray-700">{{ meal.recipe.name }}</span>
+                    </div>
+                    <div class="text-xs text-gray-600 space-y-0.5">
+                      <div>{{ nut.kcal }} kcal • P:{{ nut.P }}g C:{{ nut.C }}g F:{{ nut.F }}g</div>
+                      <div class="text-gray-500">
+                        {% for ing in meal.recipe.get_ingredients_list %}
+                          {{ ing.product_name }} ({{ ing.amount_g }}g){% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                  {% endwith %}
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
         </div>
+        {% endfor %}
       </div>
     {% else %}
-      <p class="text-sm text-zinc-600">No plan yet. Fill the form and click <em>Generate plan</em>.</p>
+      <div class="text-center py-12">
+        <div class="text-6xl mb-4">🍽️</div>
+        <p class="text-gray-600 text-lg">No plan yet. Fill the form above and click <strong>Generate Meal Plan</strong> to get started!</p>
+      </div>
     {% endif %}
   </div>
-</section>
+</div>
 {% endblock %}

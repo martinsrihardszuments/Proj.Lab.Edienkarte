@@ -1,21 +1,38 @@
 from django.db import models
 
 class Product(models.Model):
+    CATEGORY_CHOICES = [
+        ('BREAKFAST', 'Breakfast (eggs, oats, yogurt)'),
+        ('PROTEIN', 'Protein (meat, fish, tofu)'),
+        ('CARBS', 'Carbs (rice, pasta, potato)'),
+        ('VITAMINS', 'Vitamins (vegetables, fruits, salad)'),
+        ('OTHER', 'Other'),
+    ]
+    
     name = models.CharField(max_length=120)
     kcal_100g = models.IntegerField()
     p_g_100g = models.FloatField()
     f_g_100g = models.FloatField()
     c_g_100g = models.FloatField()
+    sugar_g_100g = models.FloatField(default=0.0)
     price_eur_100g = models.DecimalField(max_digits=8, decimal_places=2)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='OTHER')
 
     def __str__(self): return self.name
 
 class Recipe(models.Model):
+    MEAL_TYPE_CHOICES = [
+        ('B', 'Breakfast'),
+        ('L', 'Lunch'),
+        ('D', 'Dinner'),
+    ]
+    
     name = models.CharField(max_length=120)
     portion_g = models.IntegerField(default=300)
+    meal_type = models.CharField(max_length=1, choices=MEAL_TYPE_CHOICES, default='L')
 
     def nutrition_and_price(self):
-        kcal=p=fat=carb=price=0.0
+        kcal=p=fat=carb=sugar=price=0.0
         for ing in self.ingredients.all():
             ratio = ing.amount_g / 100.0
             pr = ing.product
@@ -23,8 +40,16 @@ class Recipe(models.Model):
             p += pr.p_g_100g * ratio
             fat += pr.f_g_100g * ratio
             carb += pr.c_g_100g * ratio
+            sugar += pr.sugar_g_100g * ratio
             price += float(pr.price_eur_100g) * ratio
-        return dict(kcal=int(kcal), P=round(p,1), F=round(fat,1), C=round(carb,1), price=round(price,2))
+        return dict(kcal=int(kcal), P=round(p,1), F=round(fat,1), C=round(carb,1), Sugar=round(sugar,1), price=round(price,2))
+
+    def get_ingredients_list(self):
+        """Get a list of ingredients with amounts for display"""
+        return [{
+            'product_name': ing.product.name,
+            'amount_g': ing.amount_g
+        } for ing in self.ingredients.all()]
 
     def __str__(self): return self.name
 
