@@ -176,8 +176,8 @@ def _create_balanced_meal(meal_type: str, target_kcal: int, recent_products: set
             side = choice(vitamins)
             
             # Calculate portions to hit target (roughly 70/30 split)
-            main_amount = min(300, int(target_kcal * 0.7 / main.kcal_100g * 100))
-            side_amount = min(200, int(target_kcal * 0.3 / side.kcal_100g * 100)) if side.kcal_100g > 0 else 100
+            main_amount = min(600, int(target_kcal * 0.7 / main.kcal_100g * 100))
+            side_amount = min(400, int(target_kcal * 0.3 / side.kcal_100g * 100)) if side.kcal_100g > 0 else 100
             
             recipe = Recipe.objects.create(
                 name=f"{main.name} with {side.name}",
@@ -215,9 +215,9 @@ def _create_balanced_meal(meal_type: str, target_kcal: int, recent_products: set
             vit = choice(vitamins)
             
             # Calculate portions to hit target (40% protein, 40% carbs, 20% vitamins)
-            protein_amount = min(200, int(target_kcal * 0.4 / protein.kcal_100g * 100)) if protein.kcal_100g > 0 else 150
-            carb_amount = min(200, int(target_kcal * 0.4 / carb.kcal_100g * 100)) if carb.kcal_100g > 0 else 150
-            vit_amount = min(150, int(target_kcal * 0.2 / vit.kcal_100g * 100)) if vit.kcal_100g > 0 else 100
+            protein_amount = min(500, int(target_kcal * 0.4 / protein.kcal_100g * 100)) if protein.kcal_100g > 0 else 150
+            carb_amount = min(500, int(target_kcal * 0.4 / carb.kcal_100g * 100)) if carb.kcal_100g > 0 else 150
+            vit_amount = min(400, int(target_kcal * 0.2 / vit.kcal_100g * 100)) if vit.kcal_100g > 0 else 100
             
             recipe = Recipe.objects.create(
                 name=f"{protein.name} with {carb.name} & {vit.name}",
