@@ -30,11 +30,11 @@ def _estimate_target_kcal(profile):
     tdee = bmr * mult
 
     if goal == "CUT":
-        target = tdee - 500
+        target = tdee - 500  # Deficit for weight loss
     elif goal == "GAIN":
-        target = tdee + 300
+        target = tdee + 500  # Surplus for weight gain
     else:
-        target = tdee
+        target = tdee  # Maintain current weight
 
     # clamp to reasonable range
     return int(max(1400, min(target, 3800)))
