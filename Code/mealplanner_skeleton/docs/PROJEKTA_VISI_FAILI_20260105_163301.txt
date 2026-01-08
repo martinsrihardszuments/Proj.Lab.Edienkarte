@@ -16,10 +16,10 @@ Izmērs: 4928 baiti (4.81 KB)
 
 **Open Food Facts** ir brīva, atvērta datubāze ar pārtikas produktu informāciju no visas pasaules. Tas ir līdzīgs Wikipedia, bet produktiem.
 
-- 🌍 **Brīvs un bezmaksas** - nav nepieciešama API atslēga
-- 📊 **Miljoni produktu** - no daudzām valstīm
-- 🏷️ **Uzturvērtības dati** - kalorijas, olbaltumvielas, tauki, ogļhidrāti
-- 🔓 **Atvērts kods** - ikviens var izmantot
+- **Brīvs un bezmaksas** - nav nepieciešama API atslēga
+- **Miljoni produktu** - no daudzām valstīm
+- **Uzturvērtības dati** - kalorijas, olbaltumvielas, tauki, ogļhidrāti
+- **Atvērts kods** - ikviens var izmantot
 
 ## API Endpoint
 
@@ -623,7 +623,7 @@ Izmērs: 3783 baiti (3.69 KB)
 - **start_server.bat** - Servera palaišana
 - **stop_server.bat** - Servera apturēšana
 
-## 📊 Datu bāzes struktūra
+## Datu bāzes struktūra
 
 ### Produkti (Product)
 - **Kopā**: 159 produkti
@@ -648,7 +648,7 @@ Izmērs: 3783 baiti (3.69 KB)
 ### MealPlans un Meals
 - Ēdienkartes plāni ar ēdienreizēm
 
-## 🚀 Kā izmantot
+## Kā izmantot
 
 ### Palaist serveri
 ```bash
@@ -675,7 +675,7 @@ python manage.py create_recipes_from_api
 python check_status.py
 ```
 
-## 📁 Svarīgākie faili
+## Svarīgākie faili
 
 ### Kods
 - `core/models.py` - Datu modeļi
@@ -694,30 +694,30 @@ python check_status.py
 - `API_INFO.md` - API informācija
 - `IZVEIDOT_BAZI.md` - Datu bāzes instrukcijas
 
-## 🔧 Tehnoloģijas
+## Tehnoloģijas
 
 - **Backend**: Django 5.0.6
 - **Datu bāze**: SQLite
 - **API**: Open Food Facts (requests bibliotēka)
 - **Python**: 3.14.2
 
-## ✨ Funkcionalitāte
+## Funkcionalitāte
 
-✅ Datu bāze ar produktiem no API
-✅ Receptes ar sastāvdaļām un cenām
-✅ Ēdienkartes plāna ģenerēšana
-✅ Uzturvērtības aprēķināšana
-✅ Cenu aprēķināšana
-✅ Web interfeiss
+Datu bāze ar produktiem no API
+Receptes ar sastāvdaļām un cenām
+Ēdienkartes plāna ģenerēšana
+Uzturvērtības aprēķināšana
+Cenu aprēķināšana
+Web interfeiss
 
-## 📝 Piezīmes
+## Piezīmes
 
 - Visi produkti ir no Open Food Facts API
 - Cenas ir novērtētas (API nav cenu datu)
 - Receptes izmanto API produktus
 - Datu bāze ir saglabāta failā `db.sqlite3`
 
-## 🎯 Nākamie soļi (ja vēlies)
+## Nākamie soļi (ja vēlies)
 
 - Pievienot vairāk produktu no API
 - Izveidot vairāk receptes

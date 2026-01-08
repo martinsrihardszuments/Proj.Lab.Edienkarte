@@ -4,10 +4,10 @@
 
 **Open Food Facts** ir brīva, atvērta datubāze ar pārtikas produktu informāciju no visas pasaules. Tas ir līdzīgs Wikipedia, bet produktiem.
 
-- 🌍 **Brīvs un bezmaksas** - nav nepieciešama API atslēga
-- 📊 **Miljoni produktu** - no daudzām valstīm
-- 🏷️ **Uzturvērtības dati** - kalorijas, olbaltumvielas, tauki, ogļhidrāti
-- 🔓 **Atvērts kods** - ikviens var izmantot
+- **Brīvs un bezmaksas** - nav nepieciešama API atslēga
+- **Miljoni produktu** - no daudzām valstīm
+- **Uzturvērtības dati** - kalorijas, olbaltumvielas, tauki, ogļhidrāti
+- **Atvērts kods** - ikviens var izmantot
 
 ## API Endpoint
 

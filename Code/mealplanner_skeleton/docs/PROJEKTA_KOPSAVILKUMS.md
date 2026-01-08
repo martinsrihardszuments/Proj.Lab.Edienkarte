@@ -1,6 +1,6 @@
 # Projekta Kopsavilkums
 
-## ✅ Kas ir izveidots un saglabāts
+## Kas ir izveidots un saglabats
 
 ### 1. Datu bāze (SQLite)
 - **Fails**: `db.sqlite3`
@@ -33,7 +33,7 @@
 - **start_server.bat** - Servera palaišana
 - **stop_server.bat** - Servera apturēšana
 
-## 📊 Datu bāzes struktūra
+## Datu bazes struktura
 
 ### Produkti (Product)
 - **Kopā**: 159 produkti
@@ -49,7 +49,7 @@
 ### Receptes (Recipe)
 - **Kopā**: 22 receptes
 - **Ar sastāvdaļām**: 11 receptes
-- **Ar cenām**: ✅ Visas ar sastāvdaļām ir ar cenām
+- **Ar cenam**: Visas ar sastavdalām ir ar cenam
 
 ### Sastāvdaļas (Ingredient)
 - Saista receptes ar produktiem
@@ -58,7 +58,7 @@
 ### MealPlans un Meals
 - Ēdienkartes plāni ar ēdienreizēm
 
-## 🚀 Kā izmantot
+## Ka izmantot
 
 ### Palaist serveri
 ```bash
@@ -85,7 +85,7 @@ python manage.py create_recipes_from_api
 python check_status.py
 ```
 
-## 📁 Svarīgākie faili
+## Svarigakie faili
 
 ### Kods
 - `core/models.py` - Datu modeļi
@@ -104,30 +104,30 @@ python check_status.py
 - `API_INFO.md` - API informācija
 - `IZVEIDOT_BAZI.md` - Datu bāzes instrukcijas
 
-## 🔧 Tehnoloģijas
+## Tehnologijas
 
 - **Backend**: Django 5.0.6
 - **Datu bāze**: SQLite
 - **API**: Open Food Facts (requests bibliotēka)
 - **Python**: 3.14.2
 
-## ✨ Funkcionalitāte
+## Funkcionalitate
 
-✅ Datu bāze ar produktiem no API
-✅ Receptes ar sastāvdaļām un cenām
-✅ Ēdienkartes plāna ģenerēšana
-✅ Uzturvērtības aprēķināšana
-✅ Cenu aprēķināšana
-✅ Web interfeiss
+Datu baze ar produktiem no API
+Receptes ar sastāvdaļām un cenām
+Ēdienkartes plāna ģenerēšana
+Uzturvērtības aprēķināšana
+Cenu aprēķināšana
+Web interfeiss
 
-## 📝 Piezīmes
+## Piezīmes
 
 - Visi produkti ir no Open Food Facts API
 - Cenas ir novērtētas (API nav cenu datu)
 - Receptes izmanto API produktus
 - Datu bāze ir saglabāta failā `db.sqlite3`
 
-## 🎯 Nākamie soļi (ja vēlies)
+## Nakami soli (ja velies)
 
 - Pievienot vairāk produktu no API
 - Izveidot vairāk receptes
@@ -138,4 +138,4 @@ python check_status.py
 
 **Izveidots**: 2026-01-05
 **Versija**: 1.0
-**Statuss**: ✅ Gatavs lietošanai
+**Statuss**: Gatavs lietosanai
