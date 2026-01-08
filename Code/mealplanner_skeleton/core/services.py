@@ -75,22 +75,40 @@ def _product_contains_allergen(product_name: str, allergen: str) -> bool:
     product_lower = product_name.lower()
     allergen_lower = allergen.lower()
     
+    # Special exclusions - products that contain misleading words
+    exclusions = [
+        'peanut butter',  # contains 'butter' but is not dairy
+        'cocoa butter',   # contains 'butter' but is not dairy
+        'shea butter',    # contains 'butter' but is not dairy
+    ]
+    
+    # If product is in exclusion list, handle specially
+    for exclusion in exclusions:
+        if exclusion in product_lower:
+            # For peanut butter, only exclude if checking for peanuts
+            if 'peanut' in exclusion and allergen_lower in ['peanuts', 'peanut']:
+                return True
+            # Don't exclude for dairy/milk
+            if allergen_lower in ['milk', 'dairy', 'butter']:
+                return False
+    
     # Direct match
     if allergen_lower in product_lower:
         return True
     
     # Special cases and synonyms
     allergen_synonyms = {
-        'milk': ['milk', 'dairy', 'cream', 'butter'],
+        'milk': ['milk', 'dairy', 'cream', ' butter', 'yogurt', 'yoghurt', 'cheese', 'cheddar', 'mozzarella', 'parmesan'],
+        'dairy': ['milk', 'dairy', 'cream', ' butter', 'yogurt', 'yoghurt', 'cheese', 'cheddar', 'mozzarella', 'parmesan'],
         'eggs': ['egg'],
-        'fish': ['fish', 'salmon', 'tuna', 'cod', 'tilapia'],
-        'shellfish': ['shrimp', 'crab', 'lobster', 'shellfish'],
+        'fish': ['fish', 'salmon', 'tuna', 'cod', 'tilapia', 'mackerel'],
+        'shellfish': ['shrimp', 'crab', 'lobster', 'shellfish', 'prawn'],
         'nuts': ['nut', 'almond', 'walnut', 'cashew', 'hazelnut'],
         'peanuts': ['peanut'],
-        'wheat': ['wheat', 'flour', 'bread'],
+        'wheat': ['wheat', 'flour'],
         'soy': ['soy', 'tofu', 'edamame'],
-        'meat': ['meat', 'beef', 'pork', 'lamb', 'veal'],
-        'chicken': ['chicken', 'poultry'],
+        'meat': ['beef', 'pork', 'lamb', 'veal'],
+        'chicken': ['chicken', 'poultry', 'turkey'],
         'pork': ['pork', 'bacon', 'ham'],
         'beef': ['beef', 'steak'],
         'rice': ['rice'],
@@ -101,7 +119,7 @@ def _product_contains_allergen(product_name: str, allergen: str) -> bool:
         'garlic': ['garlic'],
         'cheese': ['cheese', 'cheddar', 'mozzarella', 'parmesan'],
         'yogurt': ['yogurt', 'yoghurt'],
-        'bread': ['bread', 'toast'],
+        'bread': ['bread', 'toast', 'wholegrain bread'],
     }
     
     # Check synonyms

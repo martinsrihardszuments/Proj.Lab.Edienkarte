@@ -7,16 +7,16 @@ class UserInputForm(forms.Form):
     
     # Common allergens and dietary restrictions
     ALLERGENS = [
-        ('milk', 'Milk/Dairy'),
+        ('milk', 'Milk/Dairy (yogurt, cheese, butter)'),
         ('eggs', 'Eggs'),
-        ('fish', 'Fish'),
-        ('shellfish', 'Shellfish'),
+        ('fish', 'Fish (salmon, tuna, mackerel)'),
+        ('shellfish', 'Shellfish (shrimp, crab)'),
         ('nuts', 'Tree Nuts'),
         ('peanuts', 'Peanuts'),
         ('wheat', 'Wheat/Gluten'),
-        ('soy', 'Soy'),
-        ('meat', 'Meat'),
-        ('chicken', 'Chicken'),
+        ('soy', 'Soy/Tofu'),
+        ('meat', 'Red Meat (beef, pork, lamb)'),
+        ('chicken', 'Chicken/Turkey'),
         ('pork', 'Pork'),
         ('beef', 'Beef'),
         ('rice', 'Rice'),
@@ -25,8 +25,6 @@ class UserInputForm(forms.Form):
         ('tomato', 'Tomato'),
         ('onion', 'Onion'),
         ('garlic', 'Garlic'),
-        ('cheese', 'Cheese'),
-        ('yogurt', 'Yogurt'),
         ('bread', 'Bread'),
     ]
 
