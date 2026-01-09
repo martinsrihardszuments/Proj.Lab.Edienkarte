@@ -33,3 +33,4 @@
 ### Frontend: HTML, Tailwind CSS
 ### API: Open Food Facts
 ### Python: 3.13
+### Serveris: rencder.com Linux vidē
